@@ -25,10 +25,7 @@ import simuOpt
 simuOpt.setOptions(
     quiet = True,
     alleleType = 'long',
-    # quiet = False,
     optimized = False)
-    # optimized = True)
-    # debug = 'DBG_MIGRATOR')
 import simuPOP as sim
 
 # Temporaly measure
@@ -36,8 +33,6 @@ from simulation import AUTOSOME, CHROMOSOME_X, CHROMOSOME_Y, MITOCHONDRIA
 from simulation import get_genes, rename_alleles
 from simulation import genealogies
 from simulation.exception import SizeError
-# from simulation.evol_operator.mutation_cleaner import MutationSpaceCleaner
-# from simulation.evol_operator.mutator import InfiniteAlleleMutator
 from simulation.evol_operator.selector import SelectorProvider
 from simulation.evol_operator.geno_initiator import InitGenotype
 from simulation.evol_operator.dumper import Dumper
@@ -89,10 +84,6 @@ def run(args):
         if len_factors != len(male_sel):
             raise SizeError(len_factors, len(male_sel))
 
-    mut_rate = args.mutation
-    # gen = args.generation
-    # seed = args.seed
-
 
     # Define basic mode of genetic transmission as the standard
     # diploid model.
@@ -108,16 +99,12 @@ def run(args):
             index = factors.index(c)
             matingOps.append(
                 sim.Recombinator(rates = male_recomb_rate[index],
-                                 # Mutation to consider
-                                 # loci = 1,
                                  # No neutral mutation to consider
                                  loci = 0,
                                  subPops = [(0, 0), (1, 0)])
                 )
             matingOps.append(
                 sim.Recombinator(rates = female_recomb_rate[index],
-                                 # Mutation to consider
-                                 # loci = 1,
                                  # No neutral mutation to consider
                                  loci = 0,
                                  subPops =[(0, 1), (1, 1)])
@@ -156,9 +143,9 @@ def run(args):
 
     sex_mode = tuple([sim.GLOBAL_SEQUENCE_OF_SEX] + sex_mode)
 
-    # If seed is given, we perform only one run.  This is intended to
-    # use reproduce previously executed simulation.
-
+    # If seed is given, we perform only as much number of runs as the
+    # number of supplied seed.  This is intended to generate
+    # reproducible results.
 
     # A variable indicating if seed is supplied via command line
     seed_provided = False
@@ -167,11 +154,13 @@ def run(args):
         seed_provided = True
     else:
         reps = range(args.reps)
-    print('Pop Size: 0|{} 1|{}, Sex Ratio: F|{} M|{}, Mig Rate: F|{} M|{}, Mut Rate: {}'.format(
-            pop_sizes[0], pop_sizes[1], 100 - sex_ratio, sex_ratio,
-            female_mig_rate, male_mig_rate, mut_rate), end = '')
+    print('Pop Size: 0|{} 1|{}, Sex Ratio: F|{} M|{}, Mig Rate: F|{} M|{}'.format(
+        pop_sizes[0], pop_sizes[1], 100 - sex_ratio, sex_ratio,
+        female_mig_rate, male_mig_rate), end = '')
     if factors is not None:
-        print(',Factors: {}, Sel Coeff: F|{} M|{}, Recomb Rate: F|{} M|{}'.format(factors, female_sel, male_sel, female_recomb_rate, male_recomb_rate))
+        print(',Factors: {}, Sel Coeff: F|{} M|{}, Recomb Rate: F|{} M|{}'.format(
+            factors, female_sel, male_sel,
+            female_recomb_rate, male_recomb_rate))
     else:
         print('')
 
@@ -236,8 +225,6 @@ def run(args):
         if 'sel' in locals():
             preOps += sel.setSelector()
 
-        # preOps += [InfiniteAlleleMutator(rate = mut_rate)],
-
         print("<<{}>>".format(sim.getRNG().seed()))
         s.evolve(
             initOps = [sim.InitSex(sex = [sim.MALE, sim.FEMALE],
@@ -252,16 +239,6 @@ def run(args):
                 subPopSize = pop_sizes,
                 sexMode = sex_mode),
             postOps = [
-                # If population size and mutation rate are both
-                # sufficiently high, a lot of mutation will arise
-                # before a run is terminated.  This can cause overflow
-                # in the record of mutations.  However, most of
-                # mutations are already extinct at any given time.
-                # Therefore, by removing those dead from the storage
-                # space, more mutation events can be recorded.
-                # MutationSpaceCleaner(step = 50),
-                # sim.Dumper(step = 100),
-                # Dumper(args.sample_size),
                 GenealogyTracker([0] * 4,
                                  [AUTOSOME,
                                   CHROMOSOME_X,
@@ -304,9 +281,6 @@ def parse_args():
                         nargs = '+',
                         type = float,
                         metavar = 'MALE_REC_RATE')
-    parser.add_argument('--mutation',
-                        type = float,
-                        default = 0.001)
     parser.add_argument('--sex_ratio',
                         type = int,
                         metavar = '%_MALE',
@@ -314,9 +288,6 @@ def parse_args():
     parser.add_argument('--sample_size',
                         type = int,
                         default = 50)
-    # parser.add_argument('-g', '--generation',
-    #                     type = int,
-    #                     default = 10000)
     parser.add_argument('--version',
                         action='version',
                         version='%(prog)s 0.1')
