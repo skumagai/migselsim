@@ -78,9 +78,12 @@ def parse_arguments():
                         required = False,
                         default = 1,
                         help = 'number of trees per simulated data')
+    parser.add_argument('-i', '--internal',
+                        action = 'store_true',
+                        help = 'output names of internal nodes')
     return parser.parse_args()
 
-def generate_trees(data, size1, size2):
+def generate_trees(data, size1, size2, mode):
     pop_size = len(data[-1][-1])
     sample1 = random.sample(range(pop_size / 2), size1)
     sample2 = random.sample(range(pop_size / 2, pop_size), size2)
@@ -174,7 +177,7 @@ def generate_trees(data, size1, size2):
                 index += 1
 
     try:
-        print(str_sub_tree(nodes[-1]), ';', sep='')
+        print(str_sub_tree(nodes[-1], mode), ';', sep='')
     except:
         for i, hist in enumerate(histories):
             print(i, hist)
@@ -238,17 +241,37 @@ def chrom_type(chrom):
 
 
 def run(args):
+    # Skip over the first line, which contain the simulation
+    # parameters.
     f = args.file
-
-    # Skip over the first line, which contain the simulation parameters.
     f.next()
-    for line in f:
-        # Skip over a line, which contains the seed for a simulation run.
-        line = f.next()
-        data = eval(line)
-        for r in range(args.reps):
-            chrom = chrom_type(args.chrom)
-            trees = generate_trees(data[chrom], args.size1, args.size2)
+
+    # Name internal nodes.  Note that some programs such as seq-gen
+    # cannot handle trees with named internal nodes.  Use with this
+    # option with care
+    if args.internal is True:
+        for line in f:
+            # Skip over a line, which contains the seed for a simulation run.
+            line = f.next()
+            data = eval(line)
+            for r in range(args.reps):
+                chrom = chrom_type(args.chrom)
+                trees = generate_trees(data[chrom],
+                                       args.size1,
+                                       args.size2,
+                                       True)
+    else:
+        for line in f:
+            # Skip over a line, which contains the seed for a simulation run.
+            line = f.next()
+            data = eval(line)
+            for r in range(args.reps):
+                chrom = chrom_type(args.chrom)
+                trees = generate_trees(data[chrom],
+                                       args.size1,
+                                       args.size2,
+                                       False)
+
 
 if __name__ == '__main__':
     args = parse_arguments()
