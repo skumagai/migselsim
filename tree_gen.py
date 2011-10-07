@@ -61,7 +61,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description = 'Generate gene tree.')
     parser.add_argument('file',
                         type = open,
-                        help = 'the name of an input file')
+                        help = 'name of an input file')
     parser.add_argument('size1',
                         type = int,
                         help = 'sample size taken from the first deme')
@@ -81,6 +81,8 @@ def parse_arguments():
     parser.add_argument('-i', '--internal',
                         action = 'store_true',
                         help = 'output names of internal nodes')
+    parser.add_argument('-s', '--seed',
+                        type = int)
     return parser.parse_args()
 
 def generate_trees(data, size1, size2, mode):
@@ -241,14 +243,15 @@ def chrom_type(chrom):
 
 
 def run(args):
-    # Skip over the first line, which contain the simulation
-    # parameters.
+    # Skip over the first line, which contain simulation parameters.
     f = args.file
     f.next()
 
     # Name internal nodes.  Note that some programs such as seq-gen
     # cannot handle trees with named internal nodes.  Use with this
     # option with care
+    if args.seed:
+        random.seed(args.seed)
     if args.internal is True:
         for line in f:
             # Skip over a line, which contains the seed for a simulation run.
@@ -256,10 +259,10 @@ def run(args):
             data = eval(line)
             for r in range(args.reps):
                 chrom = chrom_type(args.chrom)
-                trees = generate_trees(data[chrom],
-                                       args.size1,
-                                       args.size2,
-                                       True)
+                generate_trees(data[chrom],
+                               args.size1,
+                               args.size2,
+                               True)
     else:
         for line in f:
             # Skip over a line, which contains the seed for a simulation run.
@@ -267,10 +270,10 @@ def run(args):
             data = eval(line)
             for r in range(args.reps):
                 chrom = chrom_type(args.chrom)
-                trees = generate_trees(data[chrom],
-                                       args.size1,
-                                       args.size2,
-                                       False)
+                generate_trees(data[chrom],
+                               args.size1,
+                               args.size2,
+                               False)
 
 
 if __name__ == '__main__':
