@@ -85,26 +85,26 @@ def exit_states(data, size1, size2):
     if level + 1 != orig_level:
         return False
     time = (data[-1][0] - data[-len(histories)][0]) / float(pop_size)
-    marged = [i for i in set(coal_gen)
+    merged = [i for i in set(coal_gen)
               if coal_gen.count(i) == 2][0]
     unchanged = [0, 0]
 
     for s1 in coal_gen[:size1]:
-        if s1 < pop_size / 2 and s1 != marged:
+        if s1 < pop_size / 2 and s1 != merged:
             unchanged[0] += 1
     for s2 in coal_gen[size1:]:
-        if s2 < pop_size / 2 and s2 != marged:
+        if s2 < pop_size / 2 and s2 != merged:
             unchanged[1] += 1
 
-    marged1 = coal_gen.index(marged)
-    marged2 = coal_gen.index(marged, marged1 + 1)
-    if marged1 < size1 and marged2 < size1:
+    merged1 = coal_gen.index(merged)
+    merged2 = coal_gen.index(merged, merged1 + 1)
+    if merged1 < size1 and merged2 < size1:
         ctype = 0
-    elif marged1 < size1:
+    elif merged1 < size1:
         ctype = 1
     else:
         ctype = 2
-    if marged < pop_size / 2:
+    if merged < pop_size / 2:
         deme = 1
     else:
         deme = 2
