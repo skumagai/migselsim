@@ -69,8 +69,8 @@ def run(args):
                 raise SizeError(len_factors, len(female_recomb_rate))
             if len(male_recomb_rate) != len_factors:
                 raise SizeError(len_factors, len(male_recomb_rate))
-    female_mig_rate = args.migration[0]
-    male_mig_rate = args.migration[1]
+    female_mig_rates = args.female_migration
+    male_mig_rates = args.male_migration
     sex_ratio = args.sex_ratio
     if args.male_selection is None:
         female_sel = None
@@ -154,12 +154,18 @@ def run(args):
         seed_provided = True
     else:
         reps = range(args.reps)
-    print('Pop Size: 0|{} 1|{}, Sex Ratio: F|{} M|{}, Mig Rate: F|{} M|{}'.format(
-        pop_sizes[0], pop_sizes[1], 100 - sex_ratio, sex_ratio,
-        female_mig_rate, male_mig_rate), end = '')
+    print('Pop Size: 0|{} 1|{}, Sex Ratio: F|{} M|{}'.format(
+        pop_sizes[0], pop_sizes[1], 100 - sex_ratio, sex_ratio),
+          end = '')
+    print(', Mig Rate: F.M12|{} F.M21|{} M.M12|{} M.21|{}'.format(
+        female_mig_rates[0], female_mig_rates[1],
+        male_mig_rates[0], male_mig_rates[1]),
+          end = '')
     if factors is not None:
-        print(',Factors: {}, Sel Coeff: F|{} M|{}, Recomb Rate: F|{} M|{}'.format(
-            factors, female_sel, male_sel,
+        print(', Factors: {}, Sel Coeff: F|{} M|{}'.format(
+            factors, female_sel, male_sel),
+              end = '')
+        print(', Recomb Rate: F|{} M|{}'.format(
             female_recomb_rate, male_recomb_rate))
     else:
         print('')
@@ -213,13 +219,12 @@ def run(args):
             seed = sim.getRNG().randInt(2**31)
         sim.getRNG().set(name = 'mt19937', seed = seed)
 
-        preOps = [sim.Migrator(rate = [[0, male_mig_rate],
-                                           [male_mig_rate, 0]],
+        preOps = [sim.Migrator(rate = [[0, male_mig_rates[0]],
+                                           [male_mig_rates[1], 0]],
                                    mode = sim.BY_PROBABILITY,
                                    subPops = [(0, 0), (1, 0)]),
-                  # subPops = [(sim.ALL_AVAIL, 0)]),
-                      sim.Migrator(rate = [[0, female_mig_rate],
-                                           [female_mig_rate, 0]],
+                      sim.Migrator(rate = [[0, female_mig_rates[0]],
+                                           [female_mig_rates[1], 0]],
                                    mode = sim.BY_PROBABILITY,
                                    subPops = [(0, 1), (1, 1)])]
         if 'sel' in locals():
@@ -268,10 +273,15 @@ def parse_args():
                         nargs = '+',
                         metavar = ('FEMALE_SEL_COEFF'),
                         type = float)
-    parser.add_argument('--migration',
+    parser.add_argument('--male_migration', '--mM',
                         nargs = 2,
                         type = float,
-                        metavar = ('FEMALE', 'MALE'),
+                        metavar = ('M12', 'M21'),
+                        default = [0.01, 0.01])
+    parser.add_argument('--female_migration', '--mF',
+                        nargs = 2,
+                        type = float,
+                        metavar = ('M12', 'M21'),
                         default = [0.01, 0.01])
     parser.add_argument('--female_recombination', '--rF',
                         nargs = '+',
