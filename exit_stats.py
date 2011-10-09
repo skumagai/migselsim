@@ -17,45 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import argparse, random, re
+import argparse, random
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(description = 'Convert simulation results to exit states and waiting time')
-    parser.add_argument('file',
-                        type = open,
-                        help = 'name of an input file')
-    parser.add_argument('size1',
-                        type = int,
-                        help = 'sample size taken from the first deme')
-    parser.add_argument('size2',
-                        type = int,
-                        help = 'sample size taken from the second deme')
-    parser.add_argument('-c', '--chrom',
-                        type = str,
-                        required = True,
-                        help = 'type of chromosome',
-                        choices = ['a', 'A', 'x', 'X', 'y', 'Y', 'mt', 'Mt'])
-    parser.add_argument('-r', '--reps',
-                        type = int,
-                        required = False,
-                        default = 1,
-                        help = 'number of trees per simulated data')
-    parser.add_argument('-s', '--seed',
-                        type = int)
-    return parser.parse_args()
+from post_processing import parse_common_arguments, chrom_type, adjust_pop_sizes, run
 
-
-def run(args):
-    # Skip over the first line, which contain simulation parameters.
-    f = args.file
-    line = f.next()
-    regex = re.match('Pop Size: \d+\|(\d+) \d+\|(\d+)', line)
-    pop_sizes = [int(i) for i in regex.group(1, 2)]
-    chrom = chrom_type(args.chrom)
-    pop_sizes = adjust_pop_sizes(chrom, pop_sizes)
-
-    if args.seed:
-        random.seed(args.seed)
+def get_exit_states(f, args, chrom, pop_sizes):
     print('time, #blue in d1, #yellow in d1, deme, type')
     for line in f:
         line = f.next()
@@ -116,27 +82,6 @@ def exit_states(data, size1, size2):
         time, unchanged[0], unchanged[1], deme, ctype))
     return True
 
-def chrom_type(chrom):
-    if chrom == 'a' or chrom == 'A':
-        return 0
-    elif chrom == 'x' or chrom == 'X':
-        return 1
-    elif chrom == 'y' or chrom == 'Y':
-        return 2
-    else:
-        return 3
-
-def adjust_pop_sizes(chrom, pop_sizes):
-    if chrom == 0:
-        return [i * 2 for i in pop_sizes]
-    elif chrom == 1:
-        return [i * 3 / 2 for i in pop_sizes]
-    elif chrom == 2:
-        return [i / 2 for i in pop_sizes]
-    else:
-        return pop_sizes
-
 
 if __name__ == '__main__':
-    args = parse_arguments()
-    run(args)
+    run(parse_common_arguments().parse_args(), get_exit_states)

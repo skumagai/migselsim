@@ -18,7 +18,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
-import argparse, operator, random, re
+import argparse, operator, random
+
+from post_processing import parse_common_arguments, chrom_type, adjust_pop_sizes, run
 
 class Node(object):
 
@@ -56,34 +58,6 @@ class Node(object):
     @property
     def deme(self):
         return self._deme
-
-def parse_arguments():
-    parser = argparse.ArgumentParser(description = 'Generate gene tree.')
-    parser.add_argument('file',
-                        type = open,
-                        help = 'name of an input file')
-    parser.add_argument('size1',
-                        type = int,
-                        help = 'sample size taken from the first deme')
-    parser.add_argument('size2',
-                        type = int,
-                        help = 'sample size taken from the second deme')
-    parser.add_argument('-c', '--chrom',
-                        type = str,
-                        required = True,
-                        help = 'type of chromosome',
-                        choices = ['a', 'A', 'x', 'X', 'y', 'Y', 'mt', 'Mt'])
-    parser.add_argument('-r', '--reps',
-                        type = int,
-                        required = False,
-                        default = 1,
-                        help = 'number of trees per simulated data')
-    parser.add_argument('-i', '--internal',
-                        action = 'store_true',
-                        help = 'output names of internal nodes')
-    parser.add_argument('-s', '--seed',
-                        type = int)
-    return parser.parse_args()
 
 def generate_trees(data, size1, size2, pop_sizes, mode):
     pop_size = len(data[-1][-1])
@@ -230,41 +204,7 @@ def find_most_distant_ancestor(idx, time, nodes):
         return parent
 
 
-def chrom_type(chrom):
-    if chrom == 'a' or chrom == 'A':
-        return 0
-    elif chrom == 'x' or chrom == 'X':
-        return 1
-    elif chrom == 'y' or chrom == 'Y':
-        return 2
-    else:
-        return 3
-
-def adjust_pop_sizes(chrom, pop_sizes):
-    if chrom == 0:
-        return [i * 2 for i in pop_sizes]
-    elif chrom == 1:
-        return [i * 3 / 2 for i in pop_sizes]
-    elif chrom == 2:
-        return [i / 2 for i in pop_sizes]
-    else:
-        return pop_sizes
-
-
-def run(args):
-    # Skip over the first line, which contain simulation parameters.
-    f = args.file
-    line = f.next()
-    regex = re.match('Pop Size: \d+\|(\d+) \d+\|(\d+)', line)
-    pop_sizes = [int(i) for i in regex.group(1, 2)]
-    chrom = chrom_type(args.chrom)
-    pop_sizes = adjust_pop_sizes(chrom, pop_sizes)
-
-    # Name internal nodes.  Note that some programs such as seq-gen
-    # cannot handle trees with named internal nodes.  Use with this
-    # option with care
-    if args.seed:
-        random.seed(args.seed)
+def build_tree(f, args, chrom, pop_sizes):
     if args.internal is True:
         for line in f:
             # Skip over a line, which contains the seed for a simulation run.
@@ -290,5 +230,8 @@ def run(args):
 
 
 if __name__ == '__main__':
-    args = parse_arguments()
-    run(args)
+    parser = parse_common_arguments()
+    parser.add_argument('-i', '--internal',
+                        action = 'store_true',
+                        help = 'output names of internal nodes')
+    run(parser.parse_args(), build_tree)
