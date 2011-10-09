@@ -189,8 +189,6 @@ def generate_trees(data, size1, size2, pop_sizes, mode):
             print(node.idx, [c.idx for c in node.children])
         raise Exception("circular structure found!")
 
-    # print(str_sub_tree(nodes[-1], True), ';', sep='')
-
 
 def str_sub_tree(node, name_internal = False):
     string = ''
