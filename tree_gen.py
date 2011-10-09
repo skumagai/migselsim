@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
-import argparse, operator, random
+import argparse, operator, random, re
 
 class Node(object):
 
@@ -85,10 +85,11 @@ def parse_arguments():
                         type = int)
     return parser.parse_args()
 
-def generate_trees(data, size1, size2, mode):
+def generate_trees(data, size1, size2, pop_sizes, mode):
     pop_size = len(data[-1][-1])
-    sample1 = random.sample(range(pop_size / 2), size1)
-    sample2 = random.sample(range(pop_size / 2, pop_size), size2)
+    pop_size1 = pop_sizes[0]
+    sample1 = random.sample(range(pop_size1), size1)
+    sample2 = random.sample(range(pop_size1, pop_size), size2)
     histories = [sample1 + sample2]
     sample_size = len(histories[0])
     level = len(histories[0])
@@ -167,11 +168,11 @@ def generate_trees(data, size1, size2, mode):
                 c1.parent.children.append(c0)
                 c0.parent = c1
         else:
-            deme = 1 if histories[key[0]][value] < size1 else 2
             if c0 != c1:
                 nodes.append(Node(index, deme, times[value], [c0, c1]))
                 c0.parent = nodes[-1]
                 c1.parent = nodes[-1]
+            deme = 1 if histories[key[0]][value] < pop_size1 else 2
                 index += 1
             else:
                 nodes.append(Node(index, deme, times[value], [c0]))
@@ -241,11 +242,25 @@ def chrom_type(chrom):
     else:
         return 3
 
+def adjust_pop_sizes(chrom, pop_sizes):
+    if chrom == 0:
+        return [i * 2 for i in pop_sizes]
+    elif chrom == 1:
+        return [i * 3 / 2 for i in pop_sizes]
+    elif chrom == 2:
+        return [i / 2 for i in pop_sizes]
+    else:
+        return pop_sizes
+
 
 def run(args):
     # Skip over the first line, which contain simulation parameters.
     f = args.file
-    f.next()
+    line = f.next()
+    regex = re.match('Pop Size: \d+\|(\d+) \d+\|(\d+)', line)
+    pop_sizes = [int(i) for i in regex.group(1, 2)]
+    chrom = chrom_type(args.chrom)
+    pop_sizes = adjust_pop_sizes(chrom, pop_sizes)
 
     # Name internal nodes.  Note that some programs such as seq-gen
     # cannot handle trees with named internal nodes.  Use with this
@@ -258,10 +273,10 @@ def run(args):
             line = f.next()
             data = eval(line)
             for r in range(args.reps):
-                chrom = chrom_type(args.chrom)
                 generate_trees(data[chrom],
                                args.size1,
                                args.size2,
+                               pop_sizes,
                                True)
     else:
         for line in f:
@@ -269,10 +284,10 @@ def run(args):
             line = f.next()
             data = eval(line)
             for r in range(args.reps):
-                chrom = chrom_type(args.chrom)
                 generate_trees(data[chrom],
                                args.size1,
                                args.size2,
+                               pop_sizes,
                                False)
 
 
