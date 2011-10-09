@@ -19,8 +19,8 @@
 
 import argparse, random, re
 
-def parse_common_arguments():
-    parser = argparse.ArgumentParser(description = 'Generate gene tree.')
+def parse_common_arguments(desc):
+    parser = argparse.ArgumentParser(description = desc)
     parser.add_argument('file',
                         type = open,
                         help = 'name of an input file')

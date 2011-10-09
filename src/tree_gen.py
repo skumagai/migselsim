@@ -230,7 +230,7 @@ def build_tree(f, args, chrom, pop_sizes):
 
 
 if __name__ == '__main__':
-    parser = parse_common_arguments()
+    parser = parse_common_arguments('Construct gene tree.')
     parser.add_argument('-i', '--internal',
                         action = 'store_true',
                         help = 'output names of internal nodes')

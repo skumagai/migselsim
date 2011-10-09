@@ -84,4 +84,4 @@ def exit_states(data, size1, size2):
 
 
 if __name__ == '__main__':
-    run(parse_common_arguments().parse_args(), get_exit_states)
+    run(parse_common_arguments('Summarize coalescence time and exit states').parse_args(), get_exit_states)
