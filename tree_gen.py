@@ -152,31 +152,31 @@ def generate_trees(data, size1, size2, pop_sizes, mode):
 
     index = sample_size
     for d in sorted(dist.iteritems(), key = operator.itemgetter(1)):
-        key, value = d[0], d[1]
-        time = times[value]
-        c0 = find_direct_child(key[0], time, nodes)
-        c1 = find_direct_child(key[1], time, nodes)
-        if c0.parent is not None and c1.parent is not None:
+        leaves, distance = d[0], d[1]
+        time = times[distance]
+        anc0 = find_most_distant_ancestor(leaves[0], time, nodes)
+        anc1 = find_most_distant_ancestor(leaves[1], time, nodes)
+        if anc0.parent is not None and anc1.parent is not None:
             pass
-        elif c0.parent is not None:
-            if c0.parent is not c1:
-                c0.parent.children.append(c1)
-                c1.parent = c0
+        elif anc0.parent is not None:
+            if anc0.parent is not anc1:
+                anc0.parent.children.append(anc1)
+                anc1.parent = anc0
 
-        elif c1.parent is not None:
-            if c1.parent is not c0:
-                c1.parent.children.append(c0)
-                c0.parent = c1
+        elif anc1.parent is not None:
+            if anc1.parent is not anc0:
+                anc1.parent.children.append(anc0)
+                anc0.parent = anc1
         else:
-            if c0 != c1:
-                nodes.append(Node(index, deme, times[value], [c0, c1]))
-                c0.parent = nodes[-1]
-                c1.parent = nodes[-1]
-            deme = 1 if histories[key[0]][value] < pop_size1 else 2
+            deme = 1 if histories[leaves[0]][distance] < pop_size1 else 2
+            if anc0 != anc1:
+                nodes.append(Node(index, deme, times[distance], [anc0, anc1]))
+                anc0.parent = nodes[-1]
+                anc1.parent = nodes[-1]
                 index += 1
             else:
-                nodes.append(Node(index, deme, times[value], [c0]))
-                c0.parent = nodes[-1]
+                nodes.append(Node(index, deme, times[distance], [anc0]))
+                anc0.parent = nodes[-1]
                 index += 1
 
     try:
@@ -212,7 +212,7 @@ def str_sub_tree(node, name_internal = False):
     return string
 
 
-def find_direct_child(idx, time, nodes):
+def find_most_distant_ancestor(idx, time, nodes):
     hit = None
 
     # First, find a terminal node with a proper idx.
