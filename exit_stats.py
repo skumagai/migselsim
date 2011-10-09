@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import argparse, random
+import argparse, random, re
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description = 'Convert simulation results to exit states and waiting time')
@@ -48,7 +48,11 @@ def parse_arguments():
 def run(args):
     # Skip over the first line, which contain simulation parameters.
     f = args.file
-    f.next()
+    line = f.next()
+    regex = re.match('Pop Size: \d+\|(\d+) \d+\|(\d+)', line)
+    pop_sizes = [int(i) for i in regex.group(1, 2)]
+    chrom = chrom_type(args.chrom)
+    pop_sizes = adjust_pop_sizes(chrom, pop_sizes)
 
     if args.seed:
         random.seed(args.seed)
@@ -57,7 +61,6 @@ def run(args):
         line = f.next()
         data = eval(line)
         for r in range(args.reps):
-            chrom = chrom_type(args.chrom)
             status = exit_states(data[chrom],
                               args.size1,
                               args.size2)
@@ -122,6 +125,16 @@ def chrom_type(chrom):
         return 2
     else:
         return 3
+
+def adjust_pop_sizes(chrom, pop_sizes):
+    if chrom == 0:
+        return [i * 2 for i in pop_sizes]
+    elif chrom == 1:
+        return [i * 3 / 2 for i in pop_sizes]
+    elif chrom == 2:
+        return [i / 2 for i in pop_sizes]
+    else:
+        return pop_sizes
 
 
 if __name__ == '__main__':
