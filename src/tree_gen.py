@@ -205,29 +205,16 @@ def find_most_distant_ancestor(idx, time, nodes):
 
 
 def build_tree(f, args, chrom, pop_sizes):
-    if args.internal is True:
-        for line in f:
-            # Skip over a line, which contains the seed for a simulation run.
-            line = f.next()
-            data = eval(line)
-            for r in range(args.reps):
-                generate_trees(data[chrom],
-                               args.size1,
-                               args.size2,
-                               pop_sizes,
-                               True)
-    else:
-        for line in f:
-            # Skip over a line, which contains the seed for a simulation run.
-            line = f.next()
-            data = eval(line)
-            for r in range(args.reps):
-                generate_trees(data[chrom],
-                               args.size1,
-                               args.size2,
-                               pop_sizes,
-                               False)
-
+    for line in f:
+        # Skip over a line, which contains the seed for a simulation run.
+        line = f.next()
+        data = eval(line)
+        for r in range(args.reps):
+            generate_trees(data[chrom],
+                           args.size1,
+                           args.size2,
+                           pop_sizes,
+                           args.internal)
 
 if __name__ == '__main__':
     parser = parse_common_arguments('Construct gene tree.')
