@@ -2,4 +2,5 @@ PyYAML>=3.10
 nose>=1.1.2
 pinocchio>=0.3
 figleaf>=0.6.1
+lettuce>=0.1.35
 http://sourceforge.net/projects/simupop/files/simupop/1.0.7/simuPOP-1.0.7rc1-src.tar.gz
