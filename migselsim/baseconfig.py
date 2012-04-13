@@ -1,9 +1,16 @@
 # -*- mode: python; coding: utf-8; -*-
 
-from melsigsem.baseconfig import PluginMount
+from melsigsem.baseplugin import PluginMount
+
 
 class ConfigPluginMount(PluginMount):
+    """
+    Parental class of all config plugins.
+
+    All plugins inherited from this class are registered in ConfigPluginMount dict.
+    """
     pass
+
 
 class ConfigPlugin(object):
     """
