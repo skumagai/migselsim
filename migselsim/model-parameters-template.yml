@@ -1,0 +1,53 @@
+---
+genetic structure:
+  chromosomes:
+    # sequence of chromosomes.
+    - type:   autosome
+      # type of chromosome (string) [required]
+      # one of autosome, x, y, and mitochondria are supported.
+      id:     autosome 1
+      # id of chromosome (string) [optional]
+      # arbitrary string for the name of a chromosome
+      number of loci: 2
+      # total number of loci (integer) [required]
+      # includes both neutral and non-neutral loci.
+      position of non-neutral loci: 0
+      # position of non-neutral locus (integer or seqeunce of integers) [optional]
+      recombination rate: 0.5
+      # recombination rates (real or sequence) [optional]
+      # if omitted, all loci are free to recombine (1/2).
+      # if a scalar value is given, all loci recombine at the rate.
+      # if sequence, whose length is one less than the number of loci, is given,
+      # i-th element in the sequence specifies the recombination rate
+      # between i-th and (i+1)-th loci.
+      #
+      # instead, 'recombination after loci' can be specified,
+      # but both cannot be specified at the same time.
+      recombination after loci:
+        loci: {0, 2, 4}
+        # index of loci after which recombination can occur
+        # (seqeuence) [required]
+        # NOT IMPLEMENTED
+        rate: {}
+        # rate of recombinations (sequence) [requried]
+        # recombination rate after the loci specified in 'loci'.
+        # NOT IMPLEMENTED
+    - type: x
+      number of loci: 1
+population structure:
+  # population structure
+  number of demes: 2
+  # number of demes (integer) [optional]
+  # if omitted, single population is assumed.
+  population size: 500
+  # local population size (integer or sequence) [required]
+  # if a scalar value is given, all subpopulations used the value.
+  # if sequence is given, population size of i-th subpopulation is
+  # i-th element of this seqeunce.
+  # the length of sequnce has to be identical to number of demes,
+  sex ratio:
+
+number of replicates: 1
+  # number of runs (integer) [optional]
+  # if omitted, single simulation is performed.
+...
