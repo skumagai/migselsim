@@ -36,6 +36,10 @@ class ConfigPlugin(object):
     """
     __metaclass__ = ConfigPluginMount
 
+    @classmethod
+    def action(cls, key):
+        return ConfigPlugin.plugins[key]()
+
 
 def import_plugins():
     path = os.path.abspath(os.path.dirname(__file__))
@@ -53,3 +57,6 @@ def import_plugins():
                 pass
 
 import_plugins()
+
+actions = {cls.key: cls() for cls in ConfigPlugin.plugins.itervalues()}
+print actions

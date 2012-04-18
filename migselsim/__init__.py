@@ -1,6 +1,10 @@
 # -*- mode: python; coding: utf-8; -*-
 
-from migselsim.configs import ConfigPlugin
+import sys
+
+from migselsim.baseconfig import parse_config
 
 def main():
-    pass
+    with open(sys.argv[1], 'r') as f:
+        stream = f.read()
+        parse_config(stream)
