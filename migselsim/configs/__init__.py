@@ -36,6 +36,8 @@ class ConfigPlugin(object):
     :parent: A name of parental key for a nested key.  If left undefined, the key is treated as a top-level key.
 
     :conflict: Other configuration keys that conflict with the action specified by this key.  If left undefined, there is no conflict.
+
+    :simple_entries: The names of config keys that are directly handled by this class.
     """
     __metaclass__ = ConfigPluginMount
 
@@ -73,11 +75,15 @@ def import_plugins():
 def parse_config(stream):
     """Parse a YAML-formated configuration file, and apply appropriate settings."""
     data = yaml.load_all(stream)
+    sim = []
     for datum in data:
-        sim = Simulator()
+        s = Simulator()
         for item in datum.iteritems():
             key, value = item
-            ConfigPlugin.action(key).main(value, None, sim)
-        print sim.__dict__
+            ConfigPlugin.action(key).main(value, None, s)
+
+        print s.__dict__
+        sim.append(s)
+    return sim
 
 import_plugins()
