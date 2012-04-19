@@ -2,11 +2,11 @@
 
 from migselsim.configs import ConfigPlugin
 
-class PopulationStructure(ConfigPlugin):
-    key = 'population structure'
+class PopulationSize(ConfigPlugin):
+    key = 'population size'
     requirement = 'required'
     parent = None
     conflict = None
 
-    def main(self, value, parent):
-        pass
+    def main(self, value, parent, simulator):
+        PopulationSize.verifyParent(parent)
