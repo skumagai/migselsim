@@ -1,5 +1,6 @@
 ---
 genetic structure:
+  ploidy: 2
   chromosomes:
     # sequence of chromosomes.
     - type:   autosome
@@ -36,9 +37,6 @@ genetic structure:
       number of loci: 1
 population structure:
   # population structure
-  number of demes: 2
-  # number of demes (integer) [optional]
-  # if omitted, single population is assumed.
   population size: 500
   # local population size (integer or sequence) [required]
   # if a scalar value is given, all subpopulations used the value.
