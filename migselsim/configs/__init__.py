@@ -3,7 +3,10 @@
 import os
 import sys
 
+import yaml
+
 from migselsim.baseplugin import PluginMount
+from migselsim.core import Simulator
 
 # Register config plugins by scanning the directory and import all modules.
 # Imported plugins are normal python file (*.py), and their names need not
@@ -40,6 +43,17 @@ class ConfigPlugin(object):
     def action(cls, key):
         return ConfigPlugin.plugins[key]()
 
+    @classmethod
+    def verifyParent(cls, parent):
+        try:
+            parent = parent.lower
+        except:
+            pass
+        if parent != cls.parent:
+            raise ValueError
+
+    def main(self, value, parent, simulator):
+        raise NotImplementedError
 
 def import_plugins():
     path = os.path.abspath(os.path.dirname(__file__))
@@ -56,7 +70,14 @@ def import_plugins():
                 # silently ignore failed import
                 pass
 
-import_plugins()
+def parse_config(stream):
+    """Parse a YAML-formated configuration file, and apply appropriate settings."""
+    data = yaml.load_all(stream)
+    for datum in data:
+        sim = Simulator()
+        for item in datum.iteritems():
+            key, value = item
+            ConfigPlugin.action(key).main(value, None, sim)
+        print sim.__dict__
 
-actions = {cls.key: cls() for cls in ConfigPlugin.plugins.itervalues()}
-print actions
+import_plugins()
