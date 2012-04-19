@@ -8,5 +8,5 @@ class PopulationStructure(ConfigPlugin):
     parent = None
     conflict = None
 
-    def main(self, value, parent):
-        pass
+    def main(self, value, parent, simlator):
+        PopulationStructure.verifyParent(parent)

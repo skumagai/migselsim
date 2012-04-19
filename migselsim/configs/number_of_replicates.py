@@ -8,5 +8,6 @@ class NumberOfReplicates(ConfigPlugin):
     parent = None
     conflict = None
 
-    def main(self, value, parent):
-        pass
+    def main(self, value, parent, simulator):
+        NumberOfReplicates.verifyParent(parent)
+        simulator.number_of_replicates = int(value)
