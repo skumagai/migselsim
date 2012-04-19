@@ -48,7 +48,7 @@ class ConfigPlugin(object):
     @classmethod
     def verifyParent(cls, parent):
         try:
-            parent = parent.lower
+            parent = parent.lower()
         except:
             pass
         if parent != cls.parent:
