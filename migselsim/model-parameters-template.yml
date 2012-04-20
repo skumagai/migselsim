@@ -43,8 +43,13 @@ population structure:
   # if sequence is given, population size of i-th subpopulation is
   # i-th element of this seqeunce.
   # the length of sequnce has to be identical to number of demes,
-  sex ratio:
-
+  mating scheme:
+    mating type: random mating
+    number of offspring per mating: 1
+    offspring sex:
+      proportion of male: 0.5
+      exact: True
+      by probability: False
 number of replicates: 1
   # number of runs (integer) [optional]
   # if omitted, single simulation is performed.
