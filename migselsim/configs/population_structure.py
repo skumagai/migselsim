@@ -7,6 +7,15 @@ class PopulationStructure(ConfigPlugin):
     requirement = 'required'
     parent = None
     conflict = None
+    simple_entries = ()
 
-    def main(self, value, parent, simlator):
+    def main(self, value, parent, simulator):
         PopulationStructure.verifyParent(parent)
+        for item in value.iteritems():
+            [key, val] = item
+            if key in PopulationStructure.simple_entries:
+                self.__getattr__(key)
+            else:
+                ConfigPlugin.action(key).main(val,
+                                              PopulationStructure.key,
+                                              simulator)
