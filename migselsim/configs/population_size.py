@@ -10,7 +10,7 @@ class PopulationSize(ConfigPlugin):
     parent = 'population structure'
     conflict = None
 
-    def main(self, value, parent, simulator):
+    def configure(self, value, parent, simulator):
         PopulationSize.verifyParent(parent)
         try:
             simulator.population_size = [int(val) for val in value]

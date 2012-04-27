@@ -10,7 +10,7 @@ class OffspringSex(ConfigPlugin):
     conflict = None
     simple_entries = ('exact', 'by probability')
 
-    def main(self, value, parent, simulator):
+    def configure(self, value, parent, simulator):
         OffspringSex.verifyParent(parent)
         if 'exact' in value and 'by probability' in value:
             # should use different exception.

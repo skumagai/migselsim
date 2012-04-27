@@ -10,7 +10,7 @@ class MatingScheme(ConfigPlugin):
     conflict = None
     simple_entries = ('mating type', 'number of offspring per mating')
 
-    def main(self, value, parent, simulator):
+    def configure(self, value, parent, simulator):
         MatingScheme.verifyParent(parent)
         for item in value.iteritems():
             [key, val] = item

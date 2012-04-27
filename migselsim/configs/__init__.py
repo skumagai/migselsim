@@ -23,21 +23,22 @@ class ConfigPluginMount(PluginMount):
 
 class ConfigPlugin(object):
     """
-    Mount point for plugins which refer to actions that can be performed.
+    Mount point for config plugins.
 
-    Plugins implementing this reference should provide the following attributes:
+    Plugins implementing this interface should provide the following attributes:
 
     :key:   The name of configuration key.
 
-    :main:  Entry point to an action associating with the configuration key.
+    :configure:  Code to handle config stanza.
 
-    :requirment: Importance of the key. Either "required" or "optional".  If left undefined, the key is treated optional.
+    :requirment: Either "required" or "optional".
 
-    :parent: A name of parental key for a nested key.  If left undefined, the key is treated as a top-level key.
+    :parent: Name of parental config snippet.  For top-level configs, use None.
 
-    :conflict: Other configuration keys that conflict with the action specified by this key.  If left undefined, there is no conflict.
+    :conflict: Name of other config snippets, which specify the same aspect of simulations.
+               Only one of those can be specified.
 
-    :simple_entries: The names of config keys that are directly handled by this class.
+    :simple_entries: Names of config keys, which are not delegated to child plugins.
     """
     __metaclass__ = ConfigPluginMount
 
@@ -54,7 +55,7 @@ class ConfigPlugin(object):
         if parent != cls.parent:
             raise ValueError
 
-    def main(self, value, parent, simulator):
+    def configure(self, value, parent, simulator):
         raise NotImplementedError
 
 def import_plugins():
@@ -80,7 +81,7 @@ def parse_config(stream):
         s = Simulator()
         for item in datum.iteritems():
             key, value = item
-            ConfigPlugin.action(key).main(value, None, s)
+            ConfigPlugin.action(key).configure(value, None, s)
 
         print s.__dict__
         sim.append(s)
