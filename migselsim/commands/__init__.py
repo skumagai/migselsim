@@ -45,4 +45,4 @@ class CommandPlugin(object):
 
 
 def list_all_commands():
-    command_dict = {}
+    return CommandPlugin.plugins

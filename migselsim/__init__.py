@@ -2,7 +2,7 @@
 
 import sys
 
-from migselsim.commands import commands
+from migselsim.commands import list_all_commands
 from migselsim.baseparser import parser
 
 __version__ == 0.0.1
@@ -16,7 +16,8 @@ def main():
 
     command = args[0].lower()
     try:
-        commands[command].execute(args[1:])
+        commands = list_all_commands()
+        commands[command]().execute(args[1:])
     except:
         parser.error("Unknown command: `{}`".format(command))
 
