@@ -1,9 +1,12 @@
 # -*- mode: python; coding: utf-8; -*-
 
+from argparse import ArgumentParser
+
 from migselsim.baseplugin import PluginMount
+from migselsim.core.definition import COMMAND, VERSION
 
 class CommandPluginMount(PluginMount):
-        """
+    """
     Parental class of all command plugins.
 
     All plugins inherited from this class are registered in CommandPluginMount dict.
@@ -17,25 +20,29 @@ class CommandPlugin(object):
 
     Plugins implementing this interface should provide the following attributes:
 
-    :key:   Command name.
+    :name: command name
 
-    :execute:  Code for a command.
+    :description: short summary of commands
+
+    :usage: usage of command
+
+    :execute: code for a command
 
     """
+
+    name = None
+    description = ''
+    usage = None
+
     __metaclass__ = CommandPluginMount
 
-    @classmethod
-    def action(cls, key):
-        return ConfigPlugin.plugins[key]()
-
-    @classmethod
-    def verifyParent(cls, parent):
-        try:
-            parent = parent.lower()
-        except:
-            pass
-        if parent != cls.parent:
-            raise ValueError
+    def __init__(self):
+        self.parser = ArgumentParser(usage = self.usage,
+                                     prog = '{} {}'.format(COMMAND, self.name))
 
     def execute(self, value, parent, simulator):
         raise NotImplementedError
+
+
+def list_all_commands():
+    command_dict = {}
