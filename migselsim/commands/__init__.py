@@ -3,7 +3,7 @@
 from argparse import ArgumentParser
 
 from migselsim.baseplugin import PluginMount
-from migselsim.core.definition import COMMAND, VERSION
+from migselsim.definition import COMMAND, VERSION
 
 class CommandPluginMount(PluginMount):
     """

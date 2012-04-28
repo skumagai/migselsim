@@ -1,7 +1,7 @@
 # -*- mode: python; coding: utf-8; -*-
 
 from migselsim.configs import ConfigPlugin
-from migselsim.core import RandomMating, UNIFORM_DISTRIBUTION
+from migselsim.definition import RandomMating, UNIFORM_DISTRIBUTION
 
 class MatingScheme(ConfigPlugin):
     key = 'mating scheme'

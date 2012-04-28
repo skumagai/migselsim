@@ -6,7 +6,7 @@ import sys
 import yaml
 
 from migselsim.baseplugin import PluginMount
-from migselsim.core import Simulator
+from migselsim.simulator import Simulator
 
 # Register config plugins by scanning the directory and import all modules.
 # Imported plugins are normal python file (*.py), and their names need not

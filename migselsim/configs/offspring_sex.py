@@ -1,7 +1,7 @@
 # -*- mode: python; coding: utf-8; -*-
 
 from migselsim.configs import ConfigPlugin
-from migselsim.core import RandomMating, getRNG, UNIFORM_DISTRIBUTION, MALE, FEMALE
+from migselsim.definition import RandomMating, getRNG, UNIFORM_DISTRIBUTION, MALE, FEMALE
 
 class OffspringSex(ConfigPlugin):
     key = 'offsprint sex'
