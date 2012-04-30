@@ -3,17 +3,31 @@
 from setuptools import setup, find_packages
 import os
 
-version = '0.0.1'
+package = 'migselsim'
+
+def get_metadata(lines):
+    data = {}
+    for line in lines:
+        key, value = line.split('=', 1)
+        key = key.strip('_ ')
+        value = value.strip()
+        data[key] = value
+    return data
+
+
+with open(os.path.join(packagename, 'metadata.py'), 'r') as f:
+    metadata = get_metadata(f.readlines[1:])
+
 here = os.path.abspath(os.path.dirname(__file__))
 long_description = open(os.path.join(here, 'README.rst')).read()
 
 setup(
-    name = 'migselsim',
-    version = version,
-    author = 'Seiji Kumagai',
-    author_email = 'seiji.kumagai@gmail.com',
+    name = package,
+    version = metadata['version']
+    author = metadata['author']
+    author_email = metadata['email'],
     packages = find_packages(),
-    license = 'LICENSE.txt',
+    license = metadata['license'],
     description = 'Population genetic simulator for sex-specific migration.',
     long_description = long_description,
     install_requires = [
