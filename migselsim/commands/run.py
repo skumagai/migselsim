@@ -1,7 +1,6 @@
 # -*- mode: python; coding: utf-8; -*-
 
 import sys
-from argparse imort ArgumentParser
 
 from migselsim.commands import CommandPlugin
 from migselsim.configs import parse_config
@@ -10,13 +9,9 @@ from migselsim.definition import COMMAND
 class Run(CommandPlugin):
     """Run simulations."""
 
-    name = 'run'
+    key = 'run'
     description = 'run simulations'
     usage = '{} {} CONFFILE'
-
-    def __init__(self):
-        self.parser = ArgumentParser(usage = self.usage.format(COMMAND, self.name))
-
 
     def execute(self, options, args):
 
