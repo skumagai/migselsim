@@ -58,25 +58,11 @@ class ConfigPlugin(object):
     def configure(self, value, parent, simulator):
         raise NotImplementedError
 
-def import_plugins():
-    path = os.path.abspath(os.path.dirname(__file__))
-    for module in [m[:-3]  for m in os.listdir(path)
-                   if m[-3:] == '.py' and m[:2] != '__' and m[0] != '.']:
-
-        # construct absolute pass of a module to be imported.
-        module = __name__ + '.' + module
-        if not module in sys.modules:
-            # skip if the module has been already imported.
-            try:
-                __import__(module)
-            except ImportError:
-                # silently ignore failed import
-                pass
-
 def parse_config(stream):
     """Parse a YAML-formated configuration file, and apply appropriate settings."""
     data = yaml.load_all(stream)
     sim = []
+    ConfigPlugin.scan()
     for datum in data:
         s = Simulator()
         for item in datum.iteritems():
@@ -86,5 +72,3 @@ def parse_config(stream):
         print s.__dict__
         sim.append(s)
     return sim
-
-import_plugins()

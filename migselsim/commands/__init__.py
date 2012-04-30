@@ -1,6 +1,5 @@
 # -*- mode: python; coding: utf-8; -*-
-
-from argparse import ArgumentParser
+import os
 
 from migselsim.baseplugin import PluginMount
 from migselsim.definition import COMMAND, VERSION
@@ -20,7 +19,7 @@ class CommandPlugin(object):
 
     Plugins implementing this interface should provide the following attributes:
 
-    :name: command name
+    :key: command name
 
     :description: short summary of commands
 
@@ -30,19 +29,20 @@ class CommandPlugin(object):
 
     """
 
-    name = None
+    key = None
     description = ''
     usage = None
 
     __metaclass__ = CommandPluginMount
-
-    def __init__(self):
-        self.parser = ArgumentParser(usage = self.usage,
-                                     prog = '{} {}'.format(COMMAND, self.name))
 
     def execute(self, value, parent, simulator):
         raise NotImplementedError
 
 
 def list_all_commands():
-    return CommandPlugin.plugins
+    # for path in __path__:
+    #     for module in [m[:-3] for m in os.listdir(path)]
+    CommandPlugin.scan()
+    return {key: value() for key, value in CommandPlugin.plugins.iteritems()}
+
+all_commands = list_all_commands()

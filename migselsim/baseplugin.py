@@ -4,6 +4,10 @@
 # http://martyalchin.com/2008/jan/10/simple-plugin-framework/
 # by Marty Alchin
 
+import os
+import sys
+import pkgutil
+
 class PluginMount(type):
     def __init__(cls, name, bases, attrs):
         try:
@@ -17,3 +21,23 @@ class PluginMount(type):
             # class shouldn't be registered as a plugin. Instead, it sets up a
             # list where plugins can be registered later.
             cls.plugins = {}
+
+    def scan(cls):
+        """Scan and load plugins.
+
+        This should be used from within the plugin directory"""
+        # urgly hack to get the absolute path of plugin directory.
+        plugindir = cls.__module__
+        plugindir = os.path.splitext(plugindir)[1][1:]
+        topdir = os.path.split( __file__)[0]
+
+        # need to be ta list.
+        plugindir = [os.path.join(topdir, plugindir)]
+        # TODO: better support multiple plugin directory.
+        for dummy, module, dummy in \
+                pkgutil.walk_packages(plugindir, cls.__module__ + '.'):
+            if not module in sys.modules:
+                try:
+                    __import__(module)
+                except:
+                    raise
