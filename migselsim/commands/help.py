@@ -1,26 +1,26 @@
 # -*- mode: python; coding: utf-8; -*-
 
-from migselsim.commands import CommandPlugin, list_all_commands
-from migselsim.baseparser import command_parsers
+from migselsim.commands import CommandPlugin
+from migselsim.baseparser import command_parsers, parser
 
 class Help(CommandPlugin):
     """Print help messages."""
     key = 'help'
     description = 'print help messages of available commands'
+    subparser = command_parsers.add_parser(key, help = description)
+    subparser.add_argument('target', nargs='?',
+                           default='all',
+                           metavar='command')
 
-    def execute(self, options, args):
-        pass
-        # if args:
-        #     # display help message for a signle command
-        #     command = args[0]
-        #     if command not in list_all_commands:
-        #         parser.error("Unkown command: `{}`".format(command))
-        #     else:
-        #         command = list_all_commands[command]
-        #         command.parser.print_help()
-        # else:
-        #     # display short descriptions of all avaialbe commands
-        #     parser.print_help()
-        #     print("\nAvailable commands:")
-        #     for command in list_all_commands():
-        #         print("  {}: {}".format(command.name, command.description))
+    def execute(self, args):
+
+        if args.target.lower() == 'all':
+            # default case: print help of all commands.
+            parser.print_help()
+            return
+
+        if args.target not in CommandPlugin.plugins:
+            parser.error('Unkown command: `{}`'.format(args.target))
+            return
+
+        parser.parse_args([args.target, '--help'])
