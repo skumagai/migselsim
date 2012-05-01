@@ -9,4 +9,4 @@ class PositionOfNonNeutralLoci(ConfigPlugin):
     conflict = None
 
     def configure(self, value, parent, simulator):
-        PositionOfNonNeutralLoci.verifyParent(parent)
+        self.verifyParent(parent)

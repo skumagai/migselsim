@@ -11,7 +11,7 @@ class MatingScheme(ConfigPlugin):
     simple_entries = ('mating type', 'number of offspring per mating')
 
     def configure(self, value, parent, simulator):
-        MatingScheme.verifyParent(parent)
+        self.verifyParent(parent)
         for item in value.iteritems():
             [key, val] = item
             if key in simple_entries:

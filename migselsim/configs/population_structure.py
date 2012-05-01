@@ -10,7 +10,7 @@ class PopulationStructure(ConfigPlugin):
     simple_entries = ()
 
     def configure(self, value, parent, simulator):
-        PopulationStructure.verifyParent(parent)
+        self.verifyParent(parent)
         for item in value.iteritems():
             [key, val] = item
             if key in PopulationStructure.simple_entries:

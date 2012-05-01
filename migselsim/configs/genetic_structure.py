@@ -17,6 +17,6 @@ class GeneticStructure(ConfigPlugin):
     simple_keys = ('ploidy')
 
     def configure(self, value, parent, simulator):
-        GeneticStructure.verifyParent(parent)
+        self.verifyParent(parent)
         # for datum in value:
         #     datum

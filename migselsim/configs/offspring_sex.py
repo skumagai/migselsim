@@ -11,7 +11,7 @@ class OffspringSex(ConfigPlugin):
     simple_entries = ('exact', 'by probability')
 
     def configure(self, value, parent, simulator):
-        OffspringSex.verifyParent(parent)
+        self.verifyParent(parent)
         if 'exact' in value and 'by probability' in value:
             # should use different exception.
             raise TypeError

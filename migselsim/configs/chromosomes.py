@@ -9,4 +9,4 @@ class Chromosomes(ConfigPlugin):
     conflict = None
 
     def configure(self, value, parent, simulator):
-        Chromosomes.verifyParent(parent)
+        self.verifyParent(parent)

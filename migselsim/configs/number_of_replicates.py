@@ -9,5 +9,5 @@ class NumberOfReplicates(ConfigPlugin):
     conflict = None
 
     def configure(self, value, parent, simulator):
-        NumberOfReplicates.verifyParent(parent)
+        self.verifyParent(parent)
         simulator.number_of_replicates = int(value)
