@@ -44,30 +44,30 @@ class Logger(object):
         try:
             to.write(Color.debug('DEBUG: {}\n'.format(msg)))
         except Exception as e:
-            self.error(repr(e), stderr)
+            self.error(e, stderr)
 
     def log(self, msg, to = stdout):
         try:
             to.write(Color.log('{}\n'.format(msg)))
         except Exception as e:
-            self.error(repr(e), stderr)
+            self.error(e, stderr)
 
     def info(self, msg, to = stdout):
         try:
             to.write(Color.info('INFO: {}\n'.format(msg)))
         except Exception as e:
-            self.error(repr(e), stderr)
+            self.error(e, stderr)
 
     def warn(self, msg, to = stderr):
         try:
             to.write(Color.warn('WARN: {}\n'.format(msg)))
         except Exception as e:
-            self.error(repr(e), stderr)
+            self.error(e, stderr)
 
     def error(self, msg, to = stderr):
         try:
             to.write(Color.error('ERROR: {}\n'.format(msg)))
         except Exception as e:
-            self.error(repr(e), stderr)
+            self.error(e, stderr)
 
 logger = Logger()
