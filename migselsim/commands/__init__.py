@@ -15,7 +15,7 @@ class CommandPluginMount(PluginMount):
 
 class CommandPlugin(Plugin):
     """
-    Mount point for sub-level commands plugins.
+    Baseclass of subcommand plugins.
 
     Plugins implementing this interface should provide the following attributes:
 

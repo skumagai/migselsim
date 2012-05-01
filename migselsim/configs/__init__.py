@@ -23,7 +23,7 @@ class ConfigPluginMount(PluginMount):
 
 class ConfigPlugin(Plugin):
     """
-    Mount point for config plugins.
+    Base class for config plugins.
 
     Plugins implementing this interface should provide the following attributes:
 
