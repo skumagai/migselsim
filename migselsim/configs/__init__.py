@@ -61,14 +61,13 @@ class ConfigPlugin(Plugin):
 def parse_config(stream):
     """Parse a YAML-formated configuration file, and apply appropriate settings."""
     data = yaml.load_all(stream)
-    sim = []
+    simulators = []
     ConfigPlugin.scan()
     for datum in data:
-        s = Simulator()
+        sim = Simulator()
         for item in datum.iteritems():
             key, value = item
-            ConfigPlugin.action(key).configure(value, None, s)
+            ConfigPlugin.action(key).configure(value, None, sim)
 
-        print s.__dict__
-        sim.append(s)
-    return sim
+        simulators.append(sim)
+    return simulators
