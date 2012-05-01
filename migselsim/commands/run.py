@@ -36,8 +36,6 @@ class Run(CommandPlugin):
             # start reading file.
             with open(conffile, 'r') as f:
                 simulators = parse_config(f)
-        except IOError as finenotfound:
-            logger.error(finenotfound)
         except Exception as e:
             logger.error(e)
 
