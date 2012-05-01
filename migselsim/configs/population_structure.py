@@ -13,7 +13,7 @@ class PopulationStructure(ConfigPlugin):
         self.verifyParent(parent)
         for item in value.iteritems():
             [key, val] = item
-            if key in PopulationStructure.simple_entries:
-                self.__getattr__(key)
+            if key in self.simple_entries:
+                self.__getattribute__(key)
             else:
                 ConfigPlugin.action(key).configure(val, self.key, simulator)
