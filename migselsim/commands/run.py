@@ -38,6 +38,7 @@ class Run(CommandPlugin):
                 simulators = parse_config(f)
         except Exception as e:
             logger.error(e)
+            return
 
         for simulator in simulators:
             simulator.run()
