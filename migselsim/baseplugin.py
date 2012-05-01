@@ -41,3 +41,21 @@ class PluginMount(type):
                     __import__(module)
                 except:
                     raise
+
+class Plugin(object):
+    """
+    Plugin base class.
+
+    This class only defines very basic interface and should not be used directly.
+    Rather, plugin systems should subclass this first to define specific plugin
+    interface, and then subclass the specific plugin class to define
+    concrete plugins.
+
+    :key: command name
+
+    """
+
+    key = None
+
+    # placeholder, should be also use an appropriate subclass of PluginMount.
+    __metaclass__ = PluginMount

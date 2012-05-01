@@ -5,7 +5,7 @@ import sys
 
 import yaml
 
-from migselsim.baseplugin import PluginMount
+from migselsim.baseplugin import PluginMount, Plugin
 from migselsim.simulator import Simulator
 
 # Register config plugins by scanning the directory and import all modules.
@@ -21,7 +21,7 @@ class ConfigPluginMount(PluginMount):
     pass
 
 
-class ConfigPlugin(object):
+class ConfigPlugin(Plugin):
     """
     Mount point for config plugins.
 

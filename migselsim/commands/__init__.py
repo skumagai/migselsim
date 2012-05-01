@@ -1,7 +1,7 @@
 # -*- mode: python; coding: utf-8; -*-
 import os
 
-from migselsim.baseplugin import PluginMount
+from migselsim.baseplugin import PluginMount, Plugin
 from migselsim.definition import COMMAND, VERSION
 
 class CommandPluginMount(PluginMount):
@@ -13,7 +13,7 @@ class CommandPluginMount(PluginMount):
     pass
 
 
-class CommandPlugin(object):
+class CommandPlugin(Plugin):
     """
     Mount point for sub-level commands plugins.
 
