@@ -18,9 +18,7 @@ class MatingScheme(ConfigPlugin):
                 key = key.replace(' ', '_')
                 self.__getattr__(key)(val, simulator)
             else:
-                ConfigPlugin.action(key)(val,
-                                         MatingScheme.key,
-                                         simulator)
+                ConfigPlugin.action(key)(val, self.key, simulator)
 
     def mating_type(self, mating_type, simulator):
         try:
@@ -34,8 +32,7 @@ class MatingScheme(ConfigPlugin):
 
     def number_of_offspring_per_mating(self, val, simulator):
         try:
-            val = int(val)
-            simulator.number_of_offspring = val
+            simulator.number_of_offspring = int(val)
         except TypeError:
             key = val[0]
             params = [float(i) for i in val[1:]]
