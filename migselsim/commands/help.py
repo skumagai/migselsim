@@ -2,6 +2,7 @@
 
 from migselsim.commands import CommandPlugin
 from migselsim.baseparser import command_parsers, parser
+from migselsim.log import logger
 
 class Help(CommandPlugin):
     """Print help messages."""
@@ -23,7 +24,7 @@ class Help(CommandPlugin):
             return
 
         if target not in CommandPlugin.plugins:
-            parser.error('Unkown command: `{}`'.format(target))
+            logger.error('Unkown command: `{}`'.format(target))
             return
 
         parser.parse_args([args.target, '--help'])

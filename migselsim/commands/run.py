@@ -4,7 +4,7 @@ import sys
 
 from migselsim.commands import CommandPlugin
 from migselsim.configs import parse_config
-from migselsim.definition import COMMAND
+from migselsim.log import logger
 
 class Run(CommandPlugin):
     """Run simulations."""

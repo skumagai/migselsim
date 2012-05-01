@@ -4,6 +4,7 @@ import sys
 
 from migselsim.commands import all_commands
 from migselsim.baseparser import parser
+from migselsim.log import logger
 
 def main():
     # special case. When no argument is given print help.
@@ -16,4 +17,4 @@ def main():
     try:
         all_commands[command].execute(args)
     except Exception:
-        parser.error("Unknown command: `{}`".format(command))
+        logger.error("Unknown command: `{}`".format(command))
