@@ -14,7 +14,7 @@ class MatingScheme(ConfigPlugin):
         self.verifyParent(parent)
         for item in value.iteritems():
             [key, val] = item
-            if key in simple_entries:
+            if key in self.simple_entries:
                 key = key.replace(' ', '_')
                 self.__getattr__(key)(val, simulator)
             else:
