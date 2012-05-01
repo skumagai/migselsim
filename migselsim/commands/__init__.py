@@ -3,6 +3,7 @@ import os
 
 from migselsim.baseplugin import PluginMount, Plugin
 from migselsim.definition import COMMAND, VERSION
+from migselsim.baseparser import command_parsers
 
 class CommandPluginMount(PluginMount):
     """
@@ -31,7 +32,6 @@ class CommandPlugin(Plugin):
 
     key = None
     description = ''
-    usage = None
 
     __metaclass__ = CommandPluginMount
 
