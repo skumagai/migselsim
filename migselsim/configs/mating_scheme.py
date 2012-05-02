@@ -18,7 +18,7 @@ class MatingScheme(ConfigPlugin):
                 key = key.replace(' ', '_')
                 self.__getattribute__(key)(val, simulator)
             else:
-                ConfigPlugin.action(key)(val, self.key, simulator)
+                ConfigPlugin.action(key).configure(val, self.key, simulator)
 
     def mating_type(self, mating_type, simulator):
         try:
