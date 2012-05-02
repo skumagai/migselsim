@@ -7,6 +7,7 @@ import yaml
 
 from migselsim.baseplugin import PluginMount, Plugin
 from migselsim.simulator import Simulator
+from migselsim.exception import WrongConfigParentError
 
 # Register config plugins by scanning the directory and import all modules.
 # Imported plugins are normal python file (*.py), and their names need not
@@ -53,7 +54,7 @@ class ConfigPlugin(Plugin):
         except:
             pass
         if parent != cls.parent:
-            raise ValueError
+            raise WrongConfigParentError(cls.key, parent)
 
     def configure(self, value, parent, simulator):
         raise NotImplementedError

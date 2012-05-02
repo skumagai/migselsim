@@ -7,6 +7,8 @@ settings are delegated to specialized plugins.
 """
 
 from migselsim.configs import ConfigPlugin
+from migselsim.definition import HAPLODIPLOID
+from migselsim.exception import InvalidConfigValueError
 
 class GeneticStructure(ConfigPlugin):
     key = 'genetic structure'
