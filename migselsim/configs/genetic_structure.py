@@ -20,5 +20,22 @@ class GeneticStructure(ConfigPlugin):
 
     def configure(self, value, parent, simulator):
         self.verifyParent(parent)
-        # for datum in value:
-        #     datum
+
+        for key in value:
+            lkey = key.lower()
+            lkey = lkey.replace(' ', '_')
+            if lkey in self.simple_keys:
+                self.__getattribute__(lkey)(value[key], simulator)
+            else:
+                self.action(key).configure(value[key], self.key, simulator)
+
+
+    def ploidy(self, value, simulator):
+        try:
+            ploidy = value.lower()
+            if ploidy == 'haplodiploid':
+                simulator.ploidy = HAPLODIPLOID
+            else:
+                raise InvalidConfigValueError('ploidy', value, 'Invalid value')
+        except :
+            simulator.ploidy = value
