@@ -8,7 +8,8 @@ simuOpt.setOptions(quiet = True)
 from simuPOP import RandomMating, getRNG
 
 # import constants
-from simuPOP import MALE, FEMALE, UNIFORM_DISTRIBUTION, HAPLODIPLOID
+from simuPOP import MALE, FEMALE, UNIFORM_DISTRIBUTION, HAPLODIPLOID, \
+    AUTOSOME, CHROMOSOME_X, CHROMOSOME_Y, MITOCHONDRIAL
 
 # metadata of this package.  This is likely to change once I start
 # to use distutils2/packaging instead of setuptools/distutils.
