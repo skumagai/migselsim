@@ -8,7 +8,7 @@ genetic structure:
       # type of chromosome (string) [required]
       # one of autosome, x, y, and mitochondria are supported.
       id:     autosome 1
-      # id of chromosome (string) [optional]
+      # id of chromosome (string) [required]
       # arbitrary string for the name of a chromosome
       number of loci: 2
       # total number of loci (integer) [required]
@@ -35,6 +35,7 @@ genetic structure:
         # recombination rate after the loci specified in 'loci'.
         # NOT IMPLEMENTED
     - type: x
+      id: X
       number of loci: 1
 population structure:
   # population structure
