@@ -16,4 +16,4 @@ class PopulationStructure(ConfigPlugin):
             if key in self.simple_entries:
                 self.__getattribute__(key)
             else:
-                ConfigPlugin.action(key).configure(val, self.key, simulator)
+                self.action(key).configure(val, self.key, simulator)
