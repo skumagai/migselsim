@@ -43,8 +43,15 @@ class ConfigPlugin(Plugin):
     """
     __metaclass__ = ConfigPluginMount
 
+    instances = {}
+
     @classmethod
     def action(cls, key):
+        # return cached instance of invoked class if the class is already
+        # instantiated.  Otherwise instantiate the class and return the
+        # new instance.
+        if not key in cls.instances:
+            cls.instances[key] = cls.plugins[key]()
         return ConfigPlugin.plugins[key]()
 
     @classmethod
