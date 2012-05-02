@@ -4,7 +4,7 @@ from migselsim.configs import ConfigPlugin
 from migselsim.definition import RandomMating, getRNG, UNIFORM_DISTRIBUTION, MALE, FEMALE
 
 class OffspringSex(ConfigPlugin):
-    key = 'offsprint sex'
+    key = 'offspring sex'
     requirement = 'required'
     parent = 'mating scheme'
     conflict = None
