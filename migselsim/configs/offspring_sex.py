@@ -1,32 +1,32 @@
 # -*- mode: python; coding: utf-8; -*-
+import math
 
 from migselsim.configs import ConfigPlugin
 from migselsim.definition import RandomMating, getRNG, UNIFORM_DISTRIBUTION, MALE, FEMALE
+
+_tolerance = 1e-6
 
 class OffspringSex(ConfigPlugin):
     key = 'offspring sex'
     requirement = 'required'
     parent = 'mating scheme'
     conflict = None
-    simple_entries = ('exact', 'by probability')
 
     def configure(self, value, parent, simulator):
         self.verifyParent(parent)
-        if 'exact' in value and 'by probability' in value:
-            # should use different exception.
-            raise TypeError
-        elif 'exact' in value:
-            simulator.sex_mode = self.exact(float(value['proportion']))
-        elif 'by probability':
-            simulator.sex_mode = (PROB_OF_MALES, float(value['proportion']))
-        else:
-            raise NotImplementedError
+        prop = float(value['proportion of male'])
+        key = value['mode']
+        key = key.replace(' ', '_')
+        simulator.sex_mode = self.__getattribute__(key)(prop)
 
     def exact(self, prop):
         """Return generator function determining sex of offspring.
 
         The sex ratio is exactly at `prop`
         """
+        if not is_almost_equal(prop, 0.5, _tolerance):
+            raise NotImplementedError
+
         def mating_func():
             current = MALE
             while True:
@@ -51,3 +51,10 @@ class OffspringSex(ConfigPlugin):
                     sex = FEMALE
                 yield sex
         return mating_func
+
+
+def is_almost_equal(value, target, tolr):
+    if abs(value - target) < tolr:
+        return True
+    else:
+        return False

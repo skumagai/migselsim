@@ -48,8 +48,11 @@ population structure:
     number of offspring per mating: 1
     offspring sex:
       proportion of male: 0.5
-      exact: True
-      by probability: False
+      # mode determine how to assign sexes to offspring.  If the value is 'exact'
+      # exactly 'proportion of male' of offspring is male.  If the value is
+      # 'by probability' each offspring has `'proportion of male` change of
+      # being male.
+      mode: exact
 number of replicates: 1
   # number of runs (integer) [optional]
   # if omitted, single simulation is performed.
