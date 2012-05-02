@@ -1,14 +1,14 @@
 # -*- mode: python; coding: utf-8; -*-
 
 from migselsim.configs import ConfigPlugin
-from migselsim.definition import RandomMating, UNIFORM_DISTRIBUTION
+from migselsim.definition import UNIFORM_DISTRIBUTION
 
 class MatingScheme(ConfigPlugin):
     key = 'mating scheme'
     requirement = 'required'
     parent = 'population structure'
     conflict = None
-    simple_entries = ('mating type', 'number of offspring per mating')
+    simple_entries = ('number of offspring per mating')
 
     def configure(self, value, parent, simulator):
         self.verifyParent(parent)
@@ -19,16 +19,6 @@ class MatingScheme(ConfigPlugin):
                 self.__getattribute__(key)(val, simulator)
             else:
                 self.action(key).configure(val, self.key, simulator)
-
-    def mating_type(self, mating_type, simulator):
-        try:
-            mating_type = mating_type.lower()
-        except:
-            pass
-        if mating_type == 'random mating':
-            simulator.mating_type = RandomMating
-        else:
-            raise NotImplementedError
 
     def number_of_offspring_per_mating(self, val, simulator):
         try:
