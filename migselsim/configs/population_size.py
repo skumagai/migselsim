@@ -16,4 +16,5 @@ class PopulationSize(ConfigPlugin):
             simulator.population_size = [int(val) for val in value]
         except TypeError:
             simulator.population_size = [int(value)]
-        simulator.number_of_demes = len(simulator.population_size)
+        ndemes = len(simulator.population_size)
+        simulator.subPopNames = ['deme ' + str(i) for i in range(ndemes)]
