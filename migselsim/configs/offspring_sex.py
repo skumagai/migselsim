@@ -52,6 +52,14 @@ class OffspringSex(ConfigPlugin):
                 yield sex
         return mating_func
 
+    def by_proportion(self, prop):
+        """Return generator function determining sex of offspring.
+
+        Male offspring is exactly `prop` of all offspring.
+        """
+
+
+
 
 def is_almost_equal(value, target, tolr):
     if abs(value - target) < tolr:
