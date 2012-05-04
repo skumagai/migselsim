@@ -26,9 +26,7 @@ class Chromosomes(ConfigPlugin):
                     lkey = key.replace(' ', '_').lower()
                     self.__getattribute__(lkey)(value, simulator)
                 else:
-                    print idx
-        simulator.subPopNames = ['deme' + str(i)
-                                 for i,j in enumerate(simulator.loci)]
+                    pass
 
     def type(self, value, simulator):
         simulator.chromTypes.append(_chromType[value])
