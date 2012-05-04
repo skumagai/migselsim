@@ -4,8 +4,11 @@
 
 # import functions
 import simuOpt
-simuOpt.setOptions(quiet = True)
+# we unconditionally use 'lineage' version of simuPOP as our interest is lineage.
+simuOpt.setOptions(quiet = True,
+                   alleleType = 'lineage')
 from simuPOP import RandomMating, getRNG
+import simuPOP
 
 # import constants
 from simuPOP import MALE, FEMALE, UNIFORM_DISTRIBUTION, HAPLODIPLOID, \
