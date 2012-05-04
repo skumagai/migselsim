@@ -13,8 +13,29 @@ genetic structure:
       number of loci: 2
       # total number of loci (integer) [required]
       # includes both neutral and non-neutral loci.
-      position of non-neutral loci: 0
-      # position of non-neutral locus (integer or seqeunce of integers) [optional]
+      non-neutral loci:
+      # holds information about non-neutral loci in locus-by-locus fashion.
+      # it's very verbose. yes i know.
+        - position: 0
+          # position of non-neutral locus zero-based.
+          initial frequency: 0.1
+          # initial frequency of allele, whose fitness is coded not unity (!= 1).
+          # This can take one of several forms.
+          # The first form is a single float for sex- and location-nonspecific case.
+          # The second form is a list of floats for sex-nonspecific but location-specific case
+          # e.g. [0.1, 0.2] for the frequency in the first deme is initially at 0.1, and
+          # in the second deme 0.2.
+          # The third form is a map of two items with key 'male' and 'female' for sex-specific
+          # but location-nonspedific case.
+          # e.g. male: 0.1
+          #      female: 0.2
+          # The last form is for sex- and  location-specific case.  The format is a hybrid of
+          # the second and third forms.
+          # e.g. - male: 0.1
+          #        female: 0.2
+          #      - male: 0.3
+          #        female: 0.4.
+          # It is not supported to mix any of four forms for now.
       recombination rate: 0.5
       # recombination rates (real or sequence) [optional]
       # if omitted, all loci are free to recombine (1/2).
