@@ -15,6 +15,8 @@ class OffspringSex(ConfigPlugin):
     def configure(self, value, parent, simulator):
         self.verifyParent(parent)
         prop = float(value['proportion of male'])
+        # use for initial sex ratio.  This is exact (exactly `prop` of offspring are males).
+        simulator.maleProp = prop
         key = value['mode']
         key = key.replace(' ', '_')
         simulator.sex_mode = self.__getattribute__(key)(prop)
