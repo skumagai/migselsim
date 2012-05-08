@@ -40,5 +40,8 @@ class Run(CommandPlugin):
             logger.error(e)
             return
 
-        for simulator in simulators:
-            simulator.run()
+        try:
+            for simulator in simulators:
+                simulator.run()
+        except Exception as e:
+            logger.error(e)
