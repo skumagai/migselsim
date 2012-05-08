@@ -5,7 +5,7 @@ from migselsim.configs import ConfigPlugin
 class RecombinationRate(ConfigPlugin):
     key = 'recombination rate'
     requirement = 'required'
-    parent = None
+    parent = 'chromosomes'
     conflict = None
 
     def configure(self, value, parent, simulator):

@@ -26,7 +26,7 @@ class Chromosomes(ConfigPlugin):
                     lkey = key.replace(' ', '_').lower()
                     self.__getattribute__(lkey)(value, simulator)
                 else:
-                    pass
+                    self.action(key).configure([idx, value], self.key, simulator)
 
     def type(self, value, simulator):
         simulator.chromTypes.append(_chromType[value])
