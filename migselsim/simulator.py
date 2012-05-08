@@ -3,7 +3,7 @@
 """Encapsulate simuPOP individual, population, and simulator classes."""
 
 from migselsim.definition import simuPOP as sim
-from migselsim.definition import MALE, FEMALE
+from migselsim.definition import MALE, FEMALE, PER_PLOIDY
 
 
 class Simulator(object):
@@ -25,7 +25,7 @@ class Simulator(object):
         # set sexes as virtual subpopulations.
         pop.setVirtualSplitter(sim.SexSplitter())
 
-        initOps = self.initOps()
+        initOps = self.initOps(pop)
         preOps = self.preOps()
         postOps = self.postOps()
         matingScheme = self.matingScheme()
@@ -38,16 +38,36 @@ class Simulator(object):
                     matingScheme = matingScheme,
                     postOps = postOps)
 
-    def initOps(self):
+    def initOps(self, pop):
         """Set up operations, which are performed at the beginning of a simulation."""
         # set sex for each deme separately so that sex ratio of demes are roughly identical.
         deme_ids = range(len(self.population_size))
-        prop = [sim.InitSex(prop = self.prop, subPops = [i]) for i in deme_ids]
-        geno = [sim.InitGenotype(freq = [X, Y] subPops = [(i, sex)])
-                for i in deme_ids,
-                for sex in [MALE, FEMALE]]
-        # combine two groups of initializers
+        prop = [sim.InitSex(maleProp = self.maleProp, subPops = [i]) for i in deme_ids]
+
+        # Initialize genotype sex-by-sex and deme-by-deme basis.
+        # This could be highly more efficient but it's not worth it,
+        # as they are called only once at the beginning of a simulation.
+        geno = [sim.InitGenotype(prop = locus['prop'],
+                                 loci = pop.absLocusIndex(locus['chromsome'],
+                                                          locus['position']),
+                                 # subPops must be form [[]] (nested sequence).
+                                 # Otherwise (deme, sex) pair is interpreted as
+                                 # two separate subpopulations: 'deme' and 'sex',
+                                 # rather than virtual subpopulations.
+                                 subPops = [(locus['deme'],
+                                             locus['sex'])])
+                for locus in self.non_neutral_loci]
+
+        # Initialize lineage.  All genes on the first set of chromosomes have the same id.
+        # Similarly, all genes on the second set of chromosomes have the same id.
+        # However, these ids are different between the first and second sets of chromosomes.
+        # This scheme can be specified as mode = PER_PLOIDY in simuPop.InitLineage.
+        lineage = sim.InitLineage(lineage = range(2 * sum(self.population_size)),
+                                  mode = PER_PLOIDY)
+
+        # combine all initializers
         prop.extend(gene)
+        prop.append(lineage)
         return prop
 
     def preOps(self):
