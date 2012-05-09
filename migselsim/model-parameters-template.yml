@@ -18,24 +18,70 @@ genetic structure:
       # it's very verbose. yes i know.
         - position: 0
           # position of non-neutral locus zero-based.
-          initial frequency: 0.1
-          # initial frequency of allele, whose fitness is coded not unity (!= 1).
-          # This can take one of several forms.
-          # The first form is a single float for sex- and location-nonspecific case.
-          # The second form is a list of floats for sex-nonspecific but location-specific case
-          # e.g. [0.1, 0.2] for the frequency in the first deme is initially at 0.1, and
-          # in the second deme 0.2.
-          # The third form is a map of two items with key 'male' and 'female' for sex-specific
-          # but location-nonspedific case.
-          # e.g. male: 0.1
-          #      female: 0.2
-          # The last form is for sex- and  location-specific case.  The format is a hybrid of
-          # the second and third forms.
-          # e.g. - male: 0.1
-          #        female: 0.2
-          #      - male: 0.3
-          #        female: 0.4.
-          # It is not supported to mix any of four forms for now.
+          number of alleles: 2
+          # number of alleles.  This entry takes integer as low as 2 and as high as 255.
+          # The lower bound is given by the fact that at least two alleles are needed in order
+          # for a locus to be non-neutral.
+          # The upper bound comes from the limitation of 'lineage' version of simuPOP, which
+          # stores allelic information encoded in 8 bits unsign integer type.
+          initial frequency: [0.2, 0.8]
+          # initial frequencies of alleles given as a list, whose elements sum to unity.
+          # Length of this list must be the number of alleles.
+          #
+          # This can take one of several forms depending on whether frequencies are
+          # sex- or deme-specific.
+          #
+          # The first form is for cases without any specificity.  Frequencies are simpliy given
+          # as a list.
+          # e.g. [0.2, 0.8]
+          #
+          # The second form is for deme-specific cases.  Frequencies are given as a nested list.
+          # Inner list represents frequencies in a single deme.
+          # e.g. [[0.1, 0.9], [0.3, 0.7]]
+          #
+          # The third form is for sex-specific cases.  Frequencies are given as a dict with two
+          # keys 'male' and 'female'.  Values of each key are list of sex-specific frequencies.
+          # e.g. {male: [0.1, 0.9]
+          #       female: [0.3, 0.7]}
+          #
+          # The last form is for both sex- and deme-specific case.  As this is a superset of
+          # second and third forms.  Its format is also a super set of those forms.
+          # Frequencies are given as a list of dicts.  Each dict corresponds to deme-specific
+          # initial frequencies, which are sex specific.
+          # e.g. [{male: [0.1, 0.9], female: [0.3, 0.7]},
+          #       {male: [0.9, 0.1], female: [0.7, 0.3]}
+          #  for two-deme system.
+          selection coefficient: {(0,0): 0.1, (0,1): 0.2, (1,1): 0.3}
+          # The basic idea is to assign selection coefficient to each genotype represtented as
+          # a tuple, and the tuples are keys in a dict of coefficients.  Note that (0,1) is
+          # considered to be identical genotype as (1,0) so that only one of them needs to be
+          # specified.  Because of this lack of specificity in simuPOP design, it is currently
+          # not possible to assign selection coefficients based on maternality or paternality.
+          #
+          # Another thing to note is that selection coefficient and initial frequency have to
+          # have the same form.  For example, if initial frequency is given for a case without
+          # sex- and deme-specificity, then selection coefficients has to be given for the
+          # exact same case.
+          #
+          # Similar to initial frequencies, this entry could take four forms depending on
+          # specificity in sex or deme.
+          #
+          # The first form is for cases specific neither in sex nor deme.  Then, a single dict
+          # is used.
+          #
+          # The second form is a list of dict for deme-specific cases. Each dict is
+          # deme-speccific selection coefficients.
+          #
+          # The third form is a dict of dicts for sex-specific cases.  The outer dict has
+          # two kyes, 'male' and 'female', and each key holds a dict of sex-specific selection
+          # coefficients.
+          #
+          # The last form is a list of dicts of dicts for sex- and deme-specific cases.
+          # e.g. [{male: {(0,0): 0.1, (0,1): 0.2, (1,1): 0.3},
+          #        female: {(0,0): 0.3, (0,1): 0.2, (1,1): 0.1}},
+          #       {male: {(0,0): 0.4, (0,1): 0.5, (1,1): 0.6},
+          #        female: {(0,0): 0.6, (0,1): 0.5, (1,1): 0.4}}]
+
       recombination rate: 0.5
       # recombination rates (real or sequence) [optional]
       # if omitted, all loci are free to recombine (1/2).

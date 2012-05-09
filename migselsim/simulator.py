@@ -14,23 +14,23 @@ class Simulator(object):
 
     def run(self):
         # initialize population with given information.
-        pop = sim.Population(size = self.population_size,
-                             ploidy = self.ploidy,
-                             loci = self.loci,
-                             chromTypes = self.chromTypes,
-                             chromNames = self.chromNames,
-                             subPopNames = self.subPopNames,
-                             # use for natural selection.
-                             infoFields = ['fitness'])
+        self.pop = sim.Population(size = self.population_size,
+                                  ploidy = self.ploidy,
+                                  loci = self.loci,
+                                  chromTypes = self.chromTypes,
+                                  chromNames = self.chromNames,
+                                  subPopNames = self.subPopNames,
+                                  # use for natural selection.
+                                  infoFields = ['fitness'])
         # set sexes as virtual subpopulations.
-        pop.setVirtualSplitter(sim.SexSplitter())
+        self.pop.setVirtualSplitter(sim.SexSplitter())
 
-        initOps = self.initOps(pop)
+        initOps = self.initOps()
         preOps = self.preOps()
         postOps = self.postOps()
         matingScheme = self.matingScheme()
 
-        simu = sim.Simulator(pop, rep = self.number_of_replicates)
+        simu = sim.Simulator(self.pop, rep = self.number_of_replicates)
 
         # now perform simulations
         simu.evolve(initOps = initOps,
@@ -38,10 +38,13 @@ class Simulator(object):
                     matingScheme = matingScheme,
                     postOps = postOps)
 
-    def initOps(self, pop):
+    def initOps(self):
         """Set up operations, which are performed at the beginning of a simulation."""
-        # set sex for each deme separately so that sex ratio of demes are roughly identical.
+        # set sex for each deme separately so that sex ratio of demes
+        # are roughly identical.
+        pop = self.pop
         deme_ids = range(len(self.population_size))
+        ops = []
         prop = [sim.InitSex(maleProp = self.maleProp, subPops = [i]) for i in deme_ids]
 
         # Initialize genotype sex-by-sex and deme-by-deme basis.
@@ -66,15 +69,34 @@ class Simulator(object):
                                   mode = PER_PLOIDY)
 
         # combine all initializers
-        prop.extend(gene)
-        prop.append(lineage)
-        return prop
+        ops.extend(prop)
+        ops.extend(gene)
+        ops.append(lineage)
+        return ops
 
     def preOps(self):
-        pass
+        pop = self.pop
+        ops = []
+        # selection
+        sel = [sim.MapSelector(loci = pop.absLocusIndex(locus['chromosome'],
+                                                        locus['position']),
+                               fitness = locus['coeff'],
+                               subPops = [(locus['deme'],
+                                           locus['sex'])])
+                for locus in self.non_neutral_loci]
+        # migration
+        ops.extend(sel)
+        return ops
+
 
     def postOps(self):
-        pass
+        pop = self.pop
+        ops = []
+        # renumber lineage ids, thereby lineage information refers to unique chromosome
+        # in the current generation.
+        ops.append(sim.InitLineage(lineage = range(2 * sum(self.population_size)),
+                                  mode = PER_PLOIDY))
+        return ops
 
     def matingScheme(self):
-        pass
+        pop = self.pop

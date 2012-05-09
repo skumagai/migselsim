@@ -1,7 +1,11 @@
 # -*- mode: python; coding: utf-8; -*-
 
+import sys
+
 from migselsim.configs import ConfigPlugin
 from migselsim.definition import MALE, FEMALE, ALL_AVAIL
+from migselsim.exception import LengthMismatchError
+from migselsim.log import logger
 
 class NonNeutralLoci(ConfigPlugin):
     key = 'non-neutral loci'
@@ -40,31 +44,62 @@ def _process_locus_data(chrom, locus):
 
 def _get_type_of_locus(locus):
     freq = locus['initial frequency']
-    try:
-        if 'male' in freq:
-            return 3
-        else:
-            try:
-                'male' in freq[0]
-                return 4
-            except:
-                return 2
-    except:
+    if type(freq) is dict:
+        return 3
+    elif type(freq[0]) is float:
         return 1
+    elif type(freq[0]) is list:
+        if type(freq[0][0]) is float:
+            return 2
+        else:
+            return 4
 
+def _check_consistency(nallele, freq, coeff):
+    try:
+        if nallele != len(freq):
+            raise LengthMismatchError('initial frequency', nallele, len(freq))
+        coeff_exp = nallele + (nallele * (nallele - 1)) / 2
+        if coeff_exp != len(coeff):
+            raise LengthMismatchError('selection coefficient', coeff_exp, len(coeff))
+
+        for homoez in ((i,i) for i in range(nallele)):
+            if homoz not in coeff:
+                raise MissingGenotypeError(homez)
+        for heteroz in ((i,j) for i in range(nallele) for j in range(i+1,nallele)):
+            if heteroz not in coeff:
+                raise MissingGenotypeError(heteroz)
+    except Exception e:
+        logger.error(e)
+        sys.exit(1)
+
+
+# typ1
 def _sex_nonspecific_deme_nonspecific(chrom, locus):
-    return [{prop: [locus['initial frequency'], 1 - locus['initial frequency']],
+    _check_consistency(locus['number of alleles'],
+                       locus['initial frequency'],
+                       locus['selection coefficient'])
+
+    return [{prop: locus['initial frequency'],
+             coeff: locus['selection coefficient'],
              chromosome: chrom,
              position: locus['position'],
              deme: ALL_AVAIL,
              sex: ALL_AVAIL}]
 
+
+# type2
 def _sex_nonspecific_deme_specific(chrom, locus):
     data = []
-    for idx, freq in enumerate(locus['initial frequency']):
-        data.append({prop: [freq, 1 - freq],
+    nallele = locus['number of alleles']
+    pos = locus['position']
+    for idx, vals in enumerate(zip(locus['initial frequency'],
+                                   locus['selection coefficient'])):
+        [freq, coeff] = vals
+        _check_consistency(nallele, freq, coeff)
+        data.append({prop: freq,
+                     coeff: coeff,
                      chromosome: chrom,
-                     position: locus['position'],
+                     position: pos,
                      deme: idx,
                      sex: ALL_AVAIL})
     return data
@@ -72,15 +107,21 @@ def _sex_nonspecific_deme_specific(chrom, locus):
 def _sex_specific_deme_nonspecific(chrom, locus):
     data = []
     sexes = ['male', 'female']
+    nallele = locus['number of alleles']
+    pos = locus['position']
     freq = locus['initial frequency']
+    coeff = locus['selection coefficient']
+    pos = locus['position']
     for sex in sexes:
         if sex == 'male':
             s = MALE
         else:
             s = FEMALE
-        data.append({prop: [freq[sex], 1 - freq[sex]],
+        _check_consistency(nallele, freq[sex], coeff[sex])
+        data.append({prop: locus['initial frequency'][sex],
+                     coeff: locus['selection coefficient'][sex],
                      chromosome: chrom,
-                     position: locus['position'],
+                     position: pos,
                      deme: ALL_AVAIL,
                      sex: s})
     return data
@@ -88,16 +129,21 @@ def _sex_specific_deme_nonspecific(chrom, locus):
 def _sex_specific_deme_specific(chrom, locus):
     data = []
     sexes = ['male', 'female']
-    freqs = locus['initial frequency']
-    for idx, freq in enumerate(freqs):
+    nallele = locus['number of alleles']
+    pos = locus['position']
+    for idx, vals in enumerate(zip(locus['initial frequency'],
+                                   locus['selection coefficient'])):
+        freq, coeff = vals
         for sex in sexes:
             if sex == 'male':
                 s = MALE
             else:
                 s = FEMALE
-            data.append({prop: [freq[sex], 1 - freq[sex]],
+            _check_consistency(nallele, freq[sex], coeff[sex])
+            data.append({prop: freq[sex],
+                         coeff: coeff[sex],
                          chromosome: chrom,
-                         position: locus['position'],
+                         position: pos,
                          deme: idx,
                          sex: s})
     return data
