@@ -15,7 +15,7 @@ class Simulator(object):
     def run(self):
         # initialize population with given information.
         self.pop = sim.Population(size = self.population_size,
-                                  ploidy = self.ploidy,
+                                  ploidy = 2,
                                   loci = self.loci,
                                   chromTypes = self.chromTypes,
                                   chromNames = self.chromNames,

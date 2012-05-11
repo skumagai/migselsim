@@ -1,7 +1,5 @@
 ---
 genetic structure:
-  # ploidy can take 1 (haploid), 2 (diploid), or a special value HAPLODIPLOID.
-  ploidy: 2
   chromosomes:
     # sequence of chromosomes.
     - type:   autosome
