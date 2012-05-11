@@ -21,9 +21,8 @@ class NonNeutralLoci(ConfigPlugin):
             non_neutral_loci = simulator.non_neutral_loci
         except:
             non_neutral_loci = []
-
         for locus in value[1]:
-            non_neutral_loci.append(_process_locus_data(chrm_id, locus))
+            non_neutral_loci.extend(_process_locus_data(chrm_id, locus))
 
         simulator.non_neutral_loci = non_neutral_loci
 
@@ -54,6 +53,13 @@ def _get_type_of_locus(locus):
         else:
             return 4
 
+def _convert_tuple(coeff):
+    """Convert keys of dict e.g. '(1,2)' (string) to (1,2) (tuple of integer)."""
+    new_dict = {}
+    for key, value in coeff.iteritems():
+        new_dict[tuple(int(i) for i in key[1:-1].split(','))] = value
+    return new_dict
+
 def _check_consistency(nallele, freq, coeff):
     try:
         if nallele != len(freq):
@@ -62,13 +68,13 @@ def _check_consistency(nallele, freq, coeff):
         if coeff_exp != len(coeff):
             raise LengthMismatchError('selection coefficient', coeff_exp, len(coeff))
 
-        for homoez in ((i,i) for i in range(nallele)):
+        for homoz in ((i,i) for i in range(nallele)):
             if homoz not in coeff:
                 raise MissingGenotypeError(homez)
         for heteroz in ((i,j) for i in range(nallele) for j in range(i+1,nallele)):
             if heteroz not in coeff:
                 raise MissingGenotypeError(heteroz)
-    except Exception e:
+    except Exception as e:
         logger.error(e)
         sys.exit(1)
 
@@ -130,11 +136,15 @@ def _sex_specific_deme_specific(chrom, locus):
                 s = MALE
             else:
                 s = FEMALE
-            _check_consistency(nallele, freq[sex], coeff[sex])
-            data.append({prop: freq[sex],
-                         coeff: coeff[sex],
-                         chromosome: chrom,
-                         position: pos,
-                         deme: idx,
-                         sex: s})
+            c = _convert_tuple(coeff[sex])
+            _check_consistency(nallele, freq[sex], c)
+            data.append(_construct_entry(freq[sex], coeff[sex], chrom, pos, idx, s))
     return data
+
+def _construct_entry(freq, coeff, chrom, pos, deme, sex):
+    return {'prop': freq,
+            'coeff': coeff,
+            'chromosome': chrom,
+            'position': pos,
+            'deme': deme,
+            'sex': sex}

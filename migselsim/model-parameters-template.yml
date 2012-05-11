@@ -49,7 +49,7 @@ genetic structure:
           # e.g. [{male: [0.1, 0.9], female: [0.3, 0.7]},
           #       {male: [0.9, 0.1], female: [0.7, 0.3]}
           #  for two-deme system.
-          selection coefficient: {(0,0): 0.1, (0,1): 0.2, (1,1): 0.3}
+          selection coefficient: {'(0,0)': 0.1, '(0,1)': 0.2, '(1,1)': 0.3}
           # The basic idea is to assign selection coefficient to each genotype represtented as
           # a tuple, and the tuples are keys in a dict of coefficients.  Note that (0,1) is
           # considered to be identical genotype as (1,0) so that only one of them needs to be
@@ -60,6 +60,9 @@ genetic structure:
           # have the same form.  For example, if initial frequency is given for a case without
           # sex- and deme-specificity, then selection coefficients has to be given for the
           # exact same case.
+          #
+          # Moreover, genotypes must be given as string (quoted within quotation characters).
+          # This is because of limitation in yaml format.
           #
           # Similar to initial frequencies, this entry could take four forms depending on
           # specificity in sex or deme.
@@ -79,32 +82,27 @@ genetic structure:
           #        female: {(0,0): 0.3, (0,1): 0.2, (1,1): 0.1}},
           #       {male: {(0,0): 0.4, (0,1): 0.5, (1,1): 0.6},
           #        female: {(0,0): 0.6, (0,1): 0.5, (1,1): 0.4}}]
-
-      recombination rate: 0.5
-      # recombination rates (real or sequence) [optional]
-      # if omitted, all loci are free to recombine (1/2).
-      # if a scalar value is given, all loci recombine at the rate.
-      # if sequence, whose length is one less than the number of loci, is given,
-      # i-th element in the sequence specifies the recombination rate
-      # between i-th and (i+1)-th loci.
-      #
-      # instead, 'recombination after loci' can be specified,
-      # but both cannot be specified at the same time.
-      recombination after loci:
-        loci: {0, 2, 4}
-        # index of loci after which recombination can occur
-        # (seqeuence) [required]
-        # NOT IMPLEMENTED
-        rate: {}
-        # rate of recombinations (sequence) [requried]
-        # recombination rate after the loci specified in 'loci'.
-        # NOT IMPLEMENTED
+      recombination scheme:
+        rate: 0.01
+        # recombination rate between two neighboring loci.  This can take a single float
+        # for uniform recombination rate at all recombination sites, a list, whose length
+        # equals the length of 'at' list, for site-specific recombination rates.  Note that
+        # these forms are for sex-nonspecific cases.
+        #
+        # For sex-specific cases, a dict with keys 'male' and 'female' can be used.  For
+        # each entry, value is either a float or a list as in the base cases.
+        #
+        # Unlike selection scheme, deme-specific recombination is not supported.
+        at: [0, 1]
+        # location of recombinations. Recombination happens between at[i]-th locus and
+        # (at[i] + 1)-th locus.  When omitted, recombinationo happens between every single
+        # consective pairs of loci.
     - type: x
       id: X
       number of loci: 1
 population structure:
   # population structure
-  population size: 500
+  population size: [200, 300]
   # local population size (integer or sequence) [required]
   # if a scalar value is given, all subpopulations used the value.
   # if sequence is given, population size of i-th subpopulation is
@@ -120,6 +118,28 @@ population structure:
       # 'by probability' each offspring has `'proportion of male` change of
       # being male.
       mode: exact
+  migration scheme:
+    # defines migration scheme
+    type: 'probability'
+    # type of migration scheme: if type is 'probability', migratin matrix will contain
+    # probability of migration for each individual.
+    # if type is 'proportioin', migration matrix will contain proportion of individuals
+    # migrating out of a deme.
+    matrix: [[0.9, 0.1],[0.2, 0.8]]
+    # matrix of matration probability or proportion.
+    # Let M be a migration matrix of either type.  Row indicates the source deme,
+    # and column indicates the target deme.  Note that i and j are zero-based.
+    # For example m_{1,2} is probability/proportion of migrants from the second deme to
+    # the third deme.  Furthermore, m_{ii} is an entry corresponding to nonmigrants.
+    # There is an restriction such that \sum_{j} m_{ij} = 1.  Otherwise, each row will be
+    # renormalized.
+    # e.g. [[0.9, 0.1],[0.2, 0.8]]
+    #
+    # Alternately, this entry can take a dict of two entries 'male' and 'female'.
+    # Value of each entry is then a migration matrix.  This form is used for sex-specific
+    # migration.
+    # e.g. {'male': [[0.9, 0.1],[0.2, 0.8]],
+    #       'female': [[0.2, 0.8],[0.4, 0.6]],
 number of replicates: 1
   # number of runs (integer) [optional]
   # if omitted, single simulation is performed.
