@@ -11,9 +11,10 @@ from simuPOP import RandomMating, getRNG
 import simuPOP
 
 # import constants
-from simuPOP import MALE, FEMALE, UNIFORM_DISTRIBUTION, HAPLODIPLOID, \
+from simuPOP import MALE, FEMALE, UNIFORM_DISTRIBUTION, \
     AUTOSOME, CHROMOSOME_X, CHROMOSOME_Y, MITOCHONDRIAL, ALL_AVAIL, \
-    PER_LOCI, PER_INDIVIDUAL, PER_PLOIDY, PER_CHROMOSOME
+    PER_LOCI, PER_INDIVIDUAL, PER_PLOIDY, PER_CHROMOSOME, \
+    BY_PROBABILITY, BY_PROPORTION
 
 # metadata of this package.  This is likely to change once I start
 # to use distutils2/packaging instead of setuptools/distutils.
@@ -22,3 +23,7 @@ from migselsim import metadata
 
 COMMAND = __name__.split('.')[0]
 VERSION = metadata.__version__
+
+# indicating that a parameter does not show population- or
+# sex-specificity.
+NO_STRUCTURE = -10

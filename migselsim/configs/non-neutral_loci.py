@@ -3,7 +3,7 @@
 import sys
 
 from migselsim.configs import ConfigPlugin
-from migselsim.definition import MALE, FEMALE, ALL_AVAIL
+from migselsim.definition import MALE, FEMALE, ALL_AVAIL, NO_STRUCTURE
 from migselsim.exception import LengthMismatchError
 from migselsim.log import logger
 
@@ -73,18 +73,15 @@ def _check_consistency(nallele, freq, coeff):
         sys.exit(1)
 
 
-# typ1
+# type1
 def _sex_nonspecific_deme_nonspecific(chrom, locus):
+    coeff = _convert_tuple(locus['selection coefficient'])
     _check_consistency(locus['number of alleles'],
                        locus['initial frequency'],
-                       locus['selection coefficient'])
+                       coeff)
 
-    return [{prop: locus['initial frequency'],
-             coeff: locus['selection coefficient'],
-             chromosome: chrom,
-             position: locus['position'],
-             deme: ALL_AVAIL,
-             sex: ALL_AVAIL}]
+    return [_construct_entry(locus['initial frequency'], coeff, chrom, locus['position'],
+                             NO_STRUCTURE, NO_STRUCTURE)]
 
 
 # type2
@@ -95,13 +92,9 @@ def _sex_nonspecific_deme_specific(chrom, locus):
     for idx, vals in enumerate(zip(locus['initial frequency'],
                                    locus['selection coefficient'])):
         [freq, coeff] = vals
+        coeff = _convert_tuple(coeff)
         _check_consistency(nallele, freq, coeff)
-        data.append({prop: freq,
-                     coeff: coeff,
-                     chromosome: chrom,
-                     position: pos,
-                     deme: idx,
-                     sex: ALL_AVAIL})
+        data.append(_construct_entry(freq, coeff, chrom, pos, idx, NO_STRUCTURE))
     return data
 
 def _sex_specific_deme_nonspecific(chrom, locus):
@@ -117,13 +110,11 @@ def _sex_specific_deme_nonspecific(chrom, locus):
             s = MALE
         else:
             s = FEMALE
-        _check_consistency(nallele, freq[sex], coeff[sex])
-        data.append({prop: locus['initial frequency'][sex],
-                     coeff: locus['selection coefficient'][sex],
-                     chromosome: chrom,
-                     position: pos,
-                     deme: ALL_AVAIL,
-                     sex: s})
+        c = _convert_tuple(coeff[sex])
+        _check_consistency(nallele, freq[sex], c)
+        data.append(_convert_tuple(locus['initial frequency'][sex],
+                                   locus['selection coefficient'][sex],
+                                   chrom, pos, NO_STRUCTURE, s))
     return data
 
 def _sex_specific_deme_specific(chrom, locus):
