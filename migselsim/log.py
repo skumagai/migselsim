@@ -1,6 +1,7 @@
 # -*- mode: python; coding: utf-8; -*-
 
 from sys import stdout, stderr
+import traceback
 
 """Handle logging messages"""
 
@@ -66,6 +67,7 @@ class Logger(object):
 
     def error(self, msg, to = stderr):
         try:
+            to.write(traceback.format_exc())
             to.write(Color.error(msg))
         except Exception as e:
             self.error(e, stderr)
