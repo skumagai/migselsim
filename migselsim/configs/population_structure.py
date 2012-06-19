@@ -1,8 +1,8 @@
 # -*- mode: python; coding: utf-8; -*-
 
-from migselsim.configs import ConfigPlugin
+from migselsim.configs import ConfigRecipe
 
-class PopulationStructure(ConfigPlugin):
+class PopulationStructure(ConfigRecipe):
     key = 'population structure'
     requirement = 'required'
     parent = None

@@ -1,9 +1,9 @@
 # -*- mode: python; coding: utf-8; -*-
 
-from migselsim.configs import ConfigPlugin
+from migselsim.configs import ConfigRecipe
 from migselsim.definition import RandomMating
 
-class MatingType(ConfigPlugin):
+class MatingType(ConfigRecipe):
     key = 'mating type'
     requirement = 'required'
     parent = 'mating scheme'

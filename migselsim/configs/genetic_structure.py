@@ -6,9 +6,9 @@ Simple settings are handles are directly handled by this, but more complex
 settings are delegated to specialized plugins.
 """
 
-from migselsim.configs import ConfigPlugin
+from migselsim.configs import ConfigRecipe
 
-class GeneticStructure(ConfigPlugin):
+class GeneticStructure(ConfigRecipe):
     key = 'genetic structure'
     requirement = 'required'
     parent = None

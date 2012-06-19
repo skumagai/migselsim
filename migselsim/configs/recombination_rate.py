@@ -1,8 +1,8 @@
 # -*- mode: python; coding: utf-8; -*-
 
-from migselsim.configs import ConfigPlugin
+from migselsim.configs import ConfigRecipe
 
-class RecombinationRate(ConfigPlugin):
+class RecombinationRate(ConfigRecipe):
     key = 'recombination rate'
     requirement = 'required'
     parent = 'chromosomes'

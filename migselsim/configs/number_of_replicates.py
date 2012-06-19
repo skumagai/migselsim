@@ -1,8 +1,8 @@
 # -*- mode: python; coding: utf-8; -*-
 
-from migselsim.configs import ConfigPlugin
+from migselsim.configs import ConfigRecipe
 
-class NumberOfReplicates(ConfigPlugin):
+class NumberOfReplicates(ConfigRecipe):
     key = 'number of replicates'
     requirment = 'required'
     parent = None

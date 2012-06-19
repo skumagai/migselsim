@@ -1,8 +1,8 @@
 # -*- mode: python; coding: utf-8; -*-
 
-from migselsim.configs import ConfigPlugin
+from migselsim.configs import ConfigRecipe
 
-class RecombinationAfterLoci(ConfigPlugin):
+class RecombinationAfterLoci(ConfigRecipe):
     key = 'recombination after loci'
     requirement = 'required'
     parent = 'chromosomes'

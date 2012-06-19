@@ -2,12 +2,12 @@
 
 import sys
 
-from migselsim.configs import ConfigPlugin
+from migselsim.configs import ConfigRecipe
 from migselsim.definition import MALE, FEMALE, ALL_AVAIL, NO_STRUCTURE
 from migselsim.exception import LengthMismatchError
 from migselsim.log import logger
 
-class NonNeutralLoci(ConfigPlugin):
+class NonNeutralLoci(ConfigRecipe):
     key = 'non-neutral loci'
     requirement = 'optional'
     parent = 'chromosomes'

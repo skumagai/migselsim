@@ -1,6 +1,6 @@
 # -*- mode: python; coding: utf-8; -*-
 
-from migselsim.configs import ConfigPlugin
+from migselsim.configs import ConfigRecipe
 from migselsim.definition import CHROMOSOME_X, CHROMOSOME_Y, AUTOSOME, MITOCHONDRIAL
 
 _chromType = {'x': CHROMOSOME_X,
@@ -8,7 +8,7 @@ _chromType = {'x': CHROMOSOME_X,
               'autosome': AUTOSOME,
               'mitochondria': MITOCHONDRIAL}
 
-class Chromosomes(ConfigPlugin):
+class Chromosomes(ConfigRecipe):
     key = 'chromosomes'
     requirement = 'required'
     parent = 'genetic structure'

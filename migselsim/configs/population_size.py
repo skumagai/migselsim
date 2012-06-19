@@ -1,8 +1,8 @@
 # -*- mode: python; coding: utf-8; -*-
 
-from migselsim.configs import ConfigPlugin
+from migselsim.configs import ConfigRecipe
 
-class PopulationSize(ConfigPlugin):
+class PopulationSize(ConfigRecipe):
     """Parse and set population size of simulated population."""
 
     key = 'population size'

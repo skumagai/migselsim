@@ -22,24 +22,21 @@ class ConfigPluginMount(PluginMount):
     pass
 
 
-class ConfigPlugin(Plugin):
+class ConfigRecipe(Plugin):
     """
-    Base class for config plugins.
+    Configure simulator given a node of configuration tree.
 
-    Plugins implementing this interface should provide the following attributes:
+    Any class implementing this interface should provide the following attributes:
 
-    :key:   The name of configuration key.
+    :key: Name of configuration key.
 
-    :configure:  Code to handle config stanza.
+    :child: List of names of child nodes.  Terminal nodes take None for this variable.  Used for validation.
 
-    :requirment: Either "required" or "optional".
+    :parent: Name of parental node.  Root node takes None for this variable.  Used for validation.
 
-    :parent: Name of parental config snippet.  For top-level configs, use None.
+    :conflict: List of names of conflicting config nodes.  Two nodes are in conflict when
+    two nodes specify the same aspect of simulations.
 
-    :conflict: Name of other config snippets, which specify the same aspect of simulations.
-               Only one of those can be specified.
-
-    :simple_entries: Names of config keys, which are not delegated to child plugins.
     """
     __metaclass__ = ConfigPluginMount
 

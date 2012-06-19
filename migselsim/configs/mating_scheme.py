@@ -1,9 +1,9 @@
 # -*- mode: python; coding: utf-8; -*-
 
-from migselsim.configs import ConfigPlugin
+from migselsim.configs import ConfigRecipe
 from migselsim.definition import UNIFORM_DISTRIBUTION
 
-class MatingScheme(ConfigPlugin):
+class MatingScheme(ConfigRecipe):
     key = 'mating scheme'
     requirement = 'required'
     parent = 'population structure'

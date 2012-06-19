@@ -1,12 +1,12 @@
 # -*- mode: python; coding: utf-8; -*-
 import math
 
-from migselsim.configs import ConfigPlugin
+from migselsim.configs import ConfigRecipe
 from migselsim.definition import RandomMating, getRNG, UNIFORM_DISTRIBUTION, MALE, FEMALE
 
 _tolerance = 1e-6
 
-class OffspringSex(ConfigPlugin):
+class OffspringSex(ConfigRecipe):
     key = 'offspring sex'
     requirement = 'required'
     parent = 'mating scheme'
