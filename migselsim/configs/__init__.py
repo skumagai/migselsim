@@ -40,39 +40,79 @@ class ConfigRecipe(Plugin):
     """
     __metaclass__ = ConfigPluginMount
 
-    instances = {}
+    def get(self, key):
+        if key in self.attributes:
+            return self.attributes[key]
+        else:
+            for child in self.child:
+                if child.key == key:
+                    return child
+                else:
+                    raise IndexError
 
-    @classmethod
-    def action(cls, key):
-        # return cached instance of invoked class if the class is already
-        # instantiated.  Otherwise instantiate the class and return the
-        # new instance.
-        if not key in cls.instances:
-            cls.instances[key] = cls.plugins[key]()
-        return ConfigPlugin.plugins[key]()
+class Node(object):
+    """Node of configuration options."""
+    def __init__(self, id_, parent):
+        self.id = id_
+        self.parent = parent
+        self.children = []
 
-    @classmethod
-    def verifyParent(cls, parent):
-        try:
-            parent = parent.lower()
-        except:
-            pass
-        if parent != cls.parent:
-            raise WrongConfigParentError(cls.key, parent)
 
-    def configure(self, value, parent, simulator):
-        raise NotImplementedError
+    def addChild(self, child):
+        """Add reference to a child node."""
+        self.children.append(child)
+
+    def getChildren(self):
+        return self.children
+
 
 def parse_config(stream):
-    """Parse a YAML-formated configuration file, and apply appropriate settings."""
+    """Parse a YAML-formated configuration file and return tree of configuration options."""
     data = yaml.load_all(stream)
-    simulators = []
-    ConfigPlugin.scan()
-    for datum in data:
-        sim = Simulator()
-        for item in datum.iteritems():
-            key, value = item
-            ConfigPlugin.action(key).configure(value, None, sim)
+    return [build_tree(datum) for datum in data]
 
-        simulators.append(sim)
-    return simulators
+def build_tree(data):
+    """Construct tree of configuration options from YAML-formatted input."""
+    tree = construct_node('root', data, None)
+    return tree
+
+def construct_node(id_, data, parent):
+    node = Node(id_, parent)
+    dtype = type(data)
+    if dtype == list:
+        for subid_, value in enumerate(data):
+            node.addChild(construct_node(id_ + str(subid_), value, node))
+    elif dtype == dict:
+        for key, value in data.iteritems():
+            node.addChild(construct_node(key, value, node))
+    else:
+        # If data is atomic, the node is terminal (without any
+        # children).
+        node.value = data
+
+    return node
+
+def setup_simulator(config):
+    sim = Simulator()
+
+
+
+# Auxilliary functions to debug config tree.
+def print_tree(node):
+    """Pretty print a tree with a given node as a root."""
+    print_node(node, 0)
+
+
+def print_node(node, level):
+    """Print an ID of node with an appropriate indentation, then recursively print children."""
+    print ' ' * 2 * level + '-' +  node.id
+    for child in node.getChildren():
+        print_node(child, level + 1)
+
+    # ConfigNode.scan()
+    #     # sim = Simulator()
+    #     # simulators.append(sim)
+    # return simulators
+
+# Scan plugin directory when this file is loaded.
+ConfigRecipe.scan()
