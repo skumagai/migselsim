@@ -31,7 +31,7 @@ class PluginMount(type):
         plugindir = os.path.splitext(plugindir)[1][1:]
         topdir = os.path.split( __file__)[0]
 
-        # need to be ta list.
+        # need to be a list.
         plugindir = [os.path.join(topdir, plugindir)]
         # TODO: better support multiple plugin directory.
         for dummy, module, dummy in \
