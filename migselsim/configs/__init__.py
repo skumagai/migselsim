@@ -37,18 +37,23 @@ class ConfigRecipe(Plugin):
     :conflict: List of names of conflicting config nodes.  Two nodes are in conflict when
     two nodes specify the same aspect of simulations.
 
+    :apply: an entry point to configure a simulator.  Takes instances of node and simulator
+    classes.
+
     """
     __metaclass__ = ConfigPluginMount
 
-    def get(self, key):
-        if key in self.attributes:
-            return self.attributes[key]
-        else:
-            for child in self.child:
-                if child.key == key:
-                    return child
-                else:
-                    raise IndexError
+    @staticmethod
+    def validate(cls, node):
+        if node.parent.id != cls.parent:
+            raise WrongConfigParentError(node.id, node.parent)
+        root = node.root()
+        if cls.conflict != None:
+            root = node.root()
+            conflicts = [node.find(id_) for id_ in cls.conflict]
+            if not all([conf == None for conf in conflicts]):
+                raise ConflictingConfigOptionsError(node.id, cls.conflicts)
+
 
 class Node(object):
     """Node of configuration options."""
@@ -108,11 +113,6 @@ def print_node(node, level):
     print ' ' * 2 * level + '-' +  node.id
     for child in node.getChildren():
         print_node(child, level + 1)
-
-    # ConfigNode.scan()
-    #     # sim = Simulator()
-    #     # simulators.append(sim)
-    # return simulators
 
 # Scan plugin directory when this file is loaded.
 ConfigRecipe.scan()

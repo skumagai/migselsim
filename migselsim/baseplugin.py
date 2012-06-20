@@ -22,6 +22,10 @@ class PluginMount(type):
             # list where plugins can be registered later.
             cls.plugins = {}
 
+    def apply(cls, node, simulator):
+        """invoke plugin associated with an appropriate node."""
+        cls.plugins[cls.id].apply(node, simulator)
+
     def scan(cls):
         """Scan and load plugins.
 
