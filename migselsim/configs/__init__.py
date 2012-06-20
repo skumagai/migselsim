@@ -67,8 +67,85 @@ class Node(object):
         """Add reference to a child node."""
         self.children.append(child)
 
-    def getChildren(self):
+    @children.getter
+    def children(self):
+        """return a list of all children."""
         return self.children
+
+    @id.getter
+    def id(self):
+        """return a name of current node."""
+        return self.id
+
+    @parent.getter
+    def parent(self):
+        """return a parental node."""
+        return self.parent
+
+    def root(self):
+        """return a root node of a tree."""
+        root = self.parent
+        while root.parent != None:
+            root = root.parent
+        return root
+
+    def allNodes(self):
+        """return a list of all nodes in a tree."""
+        root = self.root()
+        return [root] + root.descendents()
+
+    def ancestors(self):
+        """return a list of all ancestors."""
+        parent = self.parent
+        ancestors = [parent]
+        while parent != None:
+            ancestores.append(parent.parent)
+        return ancestors
+
+
+    def ancestor(self, id_):
+        """return an ancestor with name id_."""
+        return self._getNode(id_, self.ancestors())
+
+    def descendents(self):
+        """return a list of all descendents."""
+        descendents = []
+        stack = self.children
+        while len(stack) > 0:
+            top = stack.pop()
+            descendents.append(top)
+            stack.extend(top.children)
+        return descendents
+
+    def descendent(self, id_):
+        """return a descendent with name id_."""
+        return self._getNode(id_, self.descendents())
+
+    def siblings(self):
+        """return a list of sibling nodes except itself."""
+        parent = self.parent
+        return [child if child != self for child in parent.children]
+
+    def getValueOf(self, id_):
+        """return a value of one of descendent node."""
+        return self.descendent(id_).value
+
+    def find(self, id_):
+        """find a node with a specific id within a tree."""
+        return self._getNode(id_, [self] + node.ancestors + node.descendent)
+
+    def _getNode(self, id_, nodes):
+        """find a node with a specific id in a list of nodes, and return the node."""
+        node = [n if n.id == id_ for n in nodes]
+        nnode = len(node)
+        if nnode == 1:
+            return node[0]
+        elif nnode > 1:
+            raise DuplicateConfigNodeError(id_)
+        else:
+            return None
+
+
 
 
 def parse_config(stream):
@@ -82,6 +159,7 @@ def build_tree(data):
     return tree
 
 def construct_node(id_, data, parent):
+    """Recursively build a node representing configuration option."""
     node = Node(id_, parent)
     dtype = type(data)
     if dtype == list:
