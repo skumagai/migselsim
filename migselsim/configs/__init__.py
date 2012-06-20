@@ -177,7 +177,8 @@ def construct_node(id_, data, parent):
 
 def setup_simulator(config):
     sim = Simulator()
-
+    ConfigRecipe.
+    return sim
 
 
 # Auxilliary functions to debug config tree.
