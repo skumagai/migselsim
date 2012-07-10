@@ -5,7 +5,8 @@ import os.path
 
 from migselsim.commands import CommandPlugin
 from migselsim.baseparser import command_parsers, parser
-from migselsim.configs import parse_config, setup_simulator
+from migselsim.simulator import Simulator
+from migselsim.configs import parse_config
 from migselsim.log import logger
 
 class Run(CommandPlugin):
@@ -35,7 +36,9 @@ class Run(CommandPlugin):
         try:
             # start reading file.
             with open(conffile, 'r') as f:
-                simulators = [setup_simulator(config) for config in parse_config(f)]
+                simulators = []
+                for config in parse_config(f):
+                    simulators.append(Simulator(config))
         except Exception as e:
             logger.error(e)
             return
