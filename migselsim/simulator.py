@@ -5,47 +5,57 @@
 from migselsim.definition import simuPOP as sim
 from migselsim.definition import MALE, FEMALE, PER_PLOIDY, ALL_AVAIL, NO_STRUCTURE
 
-
 class Simulator(object):
     """Manage and run actual simulations."""
 
-    def __init__(self):
-        pass
-
-    def run(self):
+    def __init__(self, tree):
+        self.tree = tree
         # initialize population with given information.
-        self.pop = sim.Population(size = self.population_size,
+        self._setPopulation()
+        self.sim = sim.Simulator(self.pop)
+        self._setInitOps()
+        self._setPreOps()
+        self._setPostOps()
+        self._setMatingScheme()
+
+    def _setPopulation(self):
+        """configure attributes of a population from a tree of configuration options."""
+        tree = self.tree
+        size = tree.get('population size')
+        loci = tree.get('number of loci')
+        chromTypes = tree.get('chromosome types')
+        chromNames = tree.get('chromosome ids')
+        subPopNames = tree.get('subpopulation name')
+        self.pop = sim.Population(size = size,
                                   ploidy = 2,
-                                  loci = self.loci,
-                                  chromTypes = self.chromTypes,
-                                  chromNames = self.chromNames,
-                                  subPopNames = self.subPopNames,
-                                  # use for natural selection.
+                                  loci = loci,
+                                  chromTypes = chromTypes,
+                                  subPopNames = subPopNames,
                                   infoFields = ['fitness', 'migrate_to'])
-        # set sexes as virtual subpopulations.
         self.pop.setVirtualSplitter(sim.SexSplitter())
 
-        initOps = self.initOps()
-        preOps = self.preOps()
-        postOps = self.postOps()
-        matingScheme = self.matingScheme()
 
-        simu = sim.Simulator(self.pop, rep = self.number_of_replicates)
 
-        # now perform simulations
-        simu.evolve(initOps = initOps,
-                    preOps = preOps,
-                    matingScheme = matingScheme,
-                    postOps = postOps)
+
+    def run(self):
+        """Run simulations"""
+        self.sim.evolve(initOps = self.initOps,
+                        preOps = self.preOps,
+                        matingScheme = self.matingScheme,
+                        postOps = self.postOps)
 
     def initOps(self):
         """Set up operations, which are performed at the beginning of a simulation."""
         # set sex for each deme separately so that sex ratio of demes
         # are roughly identical.
         pop = self.pop
-        deme_ids = range(len(self.population_size))
+        tree =self.tree
+        pop_size = tree.get("population size")
+        male_prop = tree.get("proportion of male")
+        non_neutral_loci = tree.get("non-neutral loci")
+
         ops = []
-        prop = [sim.InitSex(maleProp = self.maleProp, subPops = [i]) for i in deme_ids]
+        prop = [sim.InitSex(maleProp = male_prop, subPops = [i]) for i in range(len(pop_size))]
 
         # Initialize genotype sex-by-sex and deme-by-deme basis.
         # This could be highly more efficient but it's not worth it,
@@ -88,15 +98,15 @@ class Simulator(object):
             # Find if selection is sex-specific.
             sex_specific = any(NO_STRUCTURE != locus['sex'] for locus in self.non_neutral_loci)
 
-            if (
-            sel = [sim.MlSelector(ops =
-                                  [sim.MapSelector(loci = pop.absLocusIndex(locus['chromosome'],
-                                                                            locus['position']),
-                                                   fitness = locus['coeff'],
-                                                   subPops = [(locus['deme'],
-                                                               locus['sex'])])
-                                   for locus in self.non_neutral_loci],
-                                  mode=MULTIPLICATIVE)]
+            if deme_specific or sex_specific:
+                sel = [sim.MlSelector(
+                        ops = [sim.MapSelector(loci = pop.absLocusIndex(locus['chromosome'],
+                                                                        locus['position']),
+                                               fitness = locus['coeff'],
+                                               subPops = [_form_subdeme(locus['deme'],
+                                                                        locus['sex'])])
+                               for locus in self.non_neutral_loci],
+                        mode=MULTIPLICATIVE)]
         except:
             sel = []
 
@@ -151,14 +161,27 @@ def _construct_genotype(locus):
     sex = locus['sex']
     if deme == NO_STRUCTURE and sex == NO_STRUCTURE:
         return sim.InitGenotype(prop = prop, loci = loci)
-    elif deme == NO_STRUCTURE:
-        all_demes = range(len(self.population_size))
-        return sim.InitGenotype(prop = prop, loci = loci,
-                           subPops = [(deme, sex) for deme in all_demes])
-    elif sex == NO_STRUCTURE:
-        all_demes = range(len(self.population_size))
-        return sim.InitGenotype(prop = prop, loci = loci, subPops = all_demes)
+    # elif deme == NO_STRUCTURE:
+    #     all_demes = range(len(self.population_size))
+    #     return sim.InitGenotype(prop = prop, loci = loci,
+    #                        subPops = [_form_subdeme(deme, sex) for deme in all_demes])
+    # elif sex == NO_STRUCTURE:
+    #     all_demes = range(len(self.population_size))
+    #     return sim.InitGenotype(prop = prop, loci = loci, subPops = all_demes)
     else:
         all_demes = range(len(self.population_size))
-        all_vpops = [(deme, sex) for deme in all_demes]
+        all_vpops = [_form_subdeme(deme, sex) for deme in all_demes]
         return sim.InitGenotype(prop = prop, loci = loci, subPops = all_vpops)
+
+def _form_subdeme(loc, sex):
+    """return tuple indicating subdemes.  The size of tuple depends on both deme- and
+    sex-specificty of non-neutral loci."""
+    if loc != NO_STRUCTURE and sex != NO_STRUCTURE:
+        return (loc, sex)
+    elif loc != NO_STRUCTURE:
+        return (loc)
+    elif sex != NO_STRUCTURE:
+        return (sex)
+    else:
+        # should not reach to this branch.
+        return ()
