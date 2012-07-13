@@ -128,7 +128,7 @@ class Node(object):
     def descendents(self):
         """return a list of all descendents."""
         descendents = []
-        stack = self.children
+        stack = list(self.children)
         while len(stack) > 0:
             top = stack.pop()
             descendents.append(top)
