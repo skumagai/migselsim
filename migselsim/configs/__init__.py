@@ -75,10 +75,17 @@ class Node(object):
         # then convert/cast the value into directly usable format by
         # calling convert() method of each associated recipe.
         match = [node for node in self.descendents() if node.id == key]
-        if len(match) > 1:
+        n_match = len(match)
+        if n_match > 1:
             values = [ConfigRecipe.plugins(key).apply(node) for node in match]
+        elif n_match == 1:
+            if key in ConfigRecipe.plugins:
+                values = ConfigRecipe.plugins[key].apply(match[0])
+            else:
+                values = match[0].value
         else:
-            values = ConfigRecipe.plugins(key).apply(match)
+            values = None
+
         return values
 
     def addChild(self, child):
