@@ -14,7 +14,8 @@ class Help(CommandPlugin):
                            default='all',
                            metavar='command')
 
-    def execute(self, args):
+    @staticmethod
+    def execute(args):
 
         target = args.target.lower()
 

@@ -2,8 +2,6 @@
 import os
 
 from migselsim.baseplugin import PluginMount, Plugin
-from migselsim.definition import COMMAND, VERSION
-from migselsim.baseparser import command_parsers
 
 class CommandPluginMount(PluginMount):
     """
@@ -30,19 +28,8 @@ class CommandPlugin(Plugin):
 
     """
 
-    key = None
-    description = ''
-
     __metaclass__ = CommandPluginMount
 
-    def execute(self, value, parent, simulator):
+    @staticmethod
+    def execute(*args):
         raise NotImplementedError
-
-
-def list_all_commands():
-    # for path in __path__:
-    #     for module in [m[:-3] for m in os.listdir(path)]
-    CommandPlugin.scan()
-    return {key: value() for key, value in CommandPlugin.plugins.iteritems()}
-
-all_commands = list_all_commands()

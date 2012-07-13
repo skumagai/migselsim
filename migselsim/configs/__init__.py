@@ -6,8 +6,7 @@ import sys
 import yaml
 
 from migselsim.baseplugin import PluginMount, Plugin
-from migselsim.simulator import Simulator
-from migselsim.exception import WrongConfigParentError
+from migselsim.configs.exceptions import InvalidNodePositionError, DuplicateNodeError, KeyConflictError
 
 # Register config plugins by scanning the directory and import all modules.
 # Imported plugins are normal python file (*.py), and their names need not
@@ -44,43 +43,62 @@ class ConfigRecipe(Plugin):
     __metaclass__ = ConfigPluginMount
 
     @staticmethod
+    def apply(*args):
+        NotImplementedError
+
+    @classmethod
     def validate(cls, node):
         if node.parent.id != cls.parent:
-            raise WrongConfigParentError(node.id, node.parent)
+            raise InvalidNodePositionError(node.id, node.parent)
         root = node.root()
         if cls.conflict != None:
             root = node.root()
             conflicts = [node.find(id_) for id_ in cls.conflict]
             if not all([conf == None for conf in conflicts]):
-                raise ConflictingConfigOptionsError(node.id, cls.conflicts)
+                raise KeyConflictError(node.id, cls.conflicts)
 
 
 class Node(object):
     """Node of configuration options."""
     def __init__(self, id_, parent):
-        self.id = id_
-        self.parent = parent
-        self.children = []
+        self._id = id_
+        self._parent = parent
+        self._children = []
 
+
+    def get(self, key):
+        """Obtain value of in descendents of a current node with node with right id.
+
+        If more than one descendent nodes have term as their IDs, a list of values of such
+        nodes is returned.  Otherwise, return a single value."""
+        # first find a node or nodes with appropriate names.
+        # then convert/cast the value into directly usable format by
+        # calling convert() method of each associated recipe.
+        match = [node for node in self.descendents() if node.id == key]
+        if len(match) > 1:
+            values = [ConfigRecipe.plugins(key).apply(node) for node in match]
+        else:
+            values = ConfigRecipe.plugins(key).apply(match)
+        return values
 
     def addChild(self, child):
         """Add reference to a child node."""
         self.children.append(child)
 
-    @children.getter
+    @property
     def children(self):
         """return a list of all children."""
-        return self.children
+        return self._children
 
-    @id.getter
+    @property
     def id(self):
         """return a name of current node."""
-        return self.id
+        return self._id
 
-    @parent.getter
+    @property
     def parent(self):
         """return a parental node."""
-        return self.parent
+        return self._parent
 
     def root(self):
         """return a root node of a tree."""
@@ -124,7 +142,7 @@ class Node(object):
     def siblings(self):
         """return a list of sibling nodes except itself."""
         parent = self.parent
-        return [child if child != self for child in parent.children]
+        return [child for child in parent.children if child != self]
 
     def getValueOf(self, id_):
         """return a value of one of descendent node."""
@@ -136,12 +154,12 @@ class Node(object):
 
     def _getNode(self, id_, nodes):
         """find a node with a specific id in a list of nodes, and return the node."""
-        node = [n if n.id == id_ for n in nodes]
+        node = [n for n in nodes if n.id == id_]
         nnode = len(node)
         if nnode == 1:
             return node[0]
         elif nnode > 1:
-            raise DuplicateConfigNodeError(id_)
+            raise DuplicateNodeError(id_)
         else:
             return None
 
@@ -175,11 +193,6 @@ def construct_node(id_, data, parent):
 
     return node
 
-def setup_simulator(config):
-    sim = Simulator()
-    ConfigRecipe.
-    return sim
-
 
 # Auxilliary functions to debug config tree.
 def print_tree(node):
@@ -190,8 +203,5 @@ def print_tree(node):
 def print_node(node, level):
     """Print an ID of node with an appropriate indentation, then recursively print children."""
     print ' ' * 2 * level + '-' +  node.id
-    for child in node.getChildren():
+    for child in node.children:
         print_node(child, level + 1)
-
-# Scan plugin directory when this file is loaded.
-ConfigRecipe.scan()

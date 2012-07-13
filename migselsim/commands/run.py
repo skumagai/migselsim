@@ -6,7 +6,6 @@ import os.path
 from migselsim.commands import CommandPlugin
 from migselsim.baseparser import command_parsers, parser
 from migselsim.simulator import Simulator
-from migselsim.configs import parse_config
 from migselsim.log import logger
 
 class Run(CommandPlugin):
@@ -21,7 +20,8 @@ class Run(CommandPlugin):
     subparser = command_parsers.add_parser(key, help = 'description')
     subparser.add_argument('conffile', nargs = '?')
 
-    def execute(self, args):
+    @staticmethod
+    def execute(args):
         conffile = args.conffile
 
         # When no conffile is supplied, print usage and exit.

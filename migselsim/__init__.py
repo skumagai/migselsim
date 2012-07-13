@@ -2,7 +2,7 @@
 
 import sys
 
-from migselsim.commands import all_commands
+from migselsim.commands import CommandPlugin as cp
 from migselsim.baseparser import parser
 from migselsim.log import logger
 
@@ -15,6 +15,7 @@ def main():
 
     command = args.command.lower()
     try:
-        all_commands[command].execute(args)
+        cp.scan()
+        cp.get(command).execute(args)
     except Exception:
         logger.error("Unknown command: `{}`".format(command))

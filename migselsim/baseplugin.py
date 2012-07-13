@@ -5,6 +5,7 @@
 # by Marty Alchin
 
 import os
+from os.path import exists, isdir
 import sys
 import pkgutil
 
@@ -22,11 +23,8 @@ class PluginMount(type):
             # list where plugins can be registered later.
             cls.plugins = {}
 
-    def apply(cls, node, simulator):
-        """invoke plugin associated with an appropriate node."""
-        cls.plugins[cls.id].apply(node, simulator)
-
-    def scan(cls):
+    @classmethod
+    def scan(cls, locs=None):
         """Scan and load plugins.
 
         This should be used from within the plugin directory"""
@@ -37,10 +35,19 @@ class PluginMount(type):
 
         # need to be a list.
         plugindir = [os.path.join(topdir, plugindir)]
+        if locs is not None:
+            if type(locs) == list:
+                for loc in locs:
+                    if exists(loc) and isdir(loc):
+                        plugindir.append(loc)
+            else:
+                if exists(locs) and isdir(locs):
+                    plugindir.append(loc)
+
         # TODO: better support multiple plugin directory.
-        for dummy, module, dummy in \
+        for dummy, module, ispkg in \
                 pkgutil.walk_packages(plugindir, cls.__module__ + '.'):
-            if not module in sys.modules:
+            if not module in sys.modules and ispkg is False:
                 try:
                     __import__(module)
                 except:
@@ -58,8 +65,6 @@ class Plugin(object):
     :key: command name
 
     """
-
-    key = None
 
     # placeholder, should be also use an appropriate subclass of PluginMount.
     __metaclass__ = PluginMount
