@@ -4,10 +4,8 @@
 # http://martyalchin.com/2008/jan/10/simple-plugin-framework/
 # by Marty Alchin
 
-import os
 from os.path import exists, isdir
-import sys
-import pkgutil
+import imp, importlib, os, pkgutil, sys
 
 class PluginMount(type):
     def __init__(cls, name, bases, attrs):
@@ -28,30 +26,30 @@ class PluginMount(type):
         """Scan and load plugins.
 
         This should be used from within the plugin directory"""
-        # urgly hack to get the absolute path of plugin directory.
+        # importing modules in standard plugin directories.
         plugindir = cls.__module__
         plugindir = os.path.splitext(plugindir)[1][1:]
         topdir = os.path.split( __file__)[0]
-
-        # need to be a list.
         plugindir = [os.path.join(topdir, plugindir)]
-        if locs is not None:
-            if type(locs) == list:
-                for loc in locs:
-                    if exists(loc) and isdir(loc):
-                        plugindir.append(loc)
-            else:
-                if exists(locs) and isdir(locs):
-                    plugindir.append(loc)
-
-        # TODO: better support multiple plugin directory.
         for dummy, module, ispkg in \
                 pkgutil.walk_packages(plugindir, cls.__module__ + '.'):
             if not module in sys.modules and ispkg is False:
-                try:
-                    __import__(module)
-                except:
-                    raise
+                importlib.import_module(module)
+
+        # additional plugin directories
+        num_added = 0
+        if locs is not None:
+            if type(locs) == list:
+                for loc in locs:
+                    plugindir = [os.path.abspath(loc)]
+                    for dummy, module, ispkg in \
+                            pkgutil.walk_packages(plugindir, loc + '.'):
+                        importlib.import_module(module)
+                if exists(locs) and isdir(locs):
+                    for dummy, module, ispkg in \
+                            pkgutil.walk_packages([os.path.abspath(locs)], locs + '.'):
+                        importlib.import_module(module)
+
 
 class Plugin(object):
     """
