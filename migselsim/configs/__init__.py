@@ -42,8 +42,8 @@ class ConfigRecipe(Plugin):
     """
     __metaclass__ = ConfigPluginMount
 
-    @staticmethod
-    def apply(node):
+    @classmethod
+    def apply(cls, node):
         NotImplementedError
 
     @classmethod

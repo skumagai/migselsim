@@ -7,7 +7,7 @@ class PopulationSize(ConfigRecipe):
     parent = 'population structure'
     conflict = None
 
-    @staticmethod
-    def apply(node):
+    @classmethod
+    def apply(cls, node):
         PopulationSize.validate(node)
         return [pop.value for pop in node.children]
