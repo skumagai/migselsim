@@ -11,11 +11,14 @@ def main():
     if len(sys.argv[1:]) == 0:
         parser.parse_args(['-h'])
 
-    args = parser.parse_args(sys.argv[1:])
-
-    command = args.command.lower()
     try:
         cp.scan()
-        cp.get(command).execute(args)
+    except Exception as e:
+        logger.error("Unknown error: `{}`".format(e))
+
+    args = parser.parse_args(sys.argv[1:])
+    command = args.command.lower()
+    try:
+        cp.plugins[command].execute(args)
     except Exception:
         logger.error("Unknown command: `{}`".format(command))
