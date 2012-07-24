@@ -1,7 +1,6 @@
 # -*- mode: python; coding: utf-8; -*-
 
-import os
-import sys
+import collections, os
 
 import yaml
 
