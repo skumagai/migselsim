@@ -30,6 +30,6 @@ class CommandPlugin(Plugin):
 
     __metaclass__ = CommandPluginMount
 
-    @staticmethod
-    def execute(*args):
+    @classmethod
+    def execute(cls, *args):
         raise NotImplementedError

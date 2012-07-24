@@ -20,13 +20,13 @@ class Run(CommandPlugin):
     subparser = command_parsers.add_parser(key, help = 'description')
     subparser.add_argument('conffile', nargs = '?')
 
-    @staticmethod
-    def execute(args):
+    @classmethod
+    def execute(cls, args):
         conffile = args.conffile
 
         # When no conffile is supplied, print usage and exit.
         if conffile is None:
-            parser.parse_args([self.key, '--help'])
+            parser.parse_args([cls.key, '--help'])
 
         # if conffile is not file, print error message and exit.
         if not os.path.isfile(conffile):
