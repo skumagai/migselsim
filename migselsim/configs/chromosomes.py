@@ -1,7 +1,8 @@
 # -*- mode: python; coding: utf-8; -*-
 
-from migselsim.definition import AUTOSOME, CHROMOSOME_X, CHROMOSOME_Y, MITOCHONDRIAL
+from migselsim.definition import AUTOSOME, CHROMOSOME_X, CHROMOSOME_Y, MITOCHONDRIAL, ALL_AVAIL
 from migselsim.configs import ConfigRecipe
+from migselsim.configs.utils import get_chromosome, get_position, get_list_of_values, Locus
 
 class ChromosomalType(ConfigRecipe):
     key = 'chromosomes:type'
@@ -39,3 +40,23 @@ class ChromosomalType(ConfigRecipe):
             return MITOCHONDRIAL
         else:
             raise KeyError
+
+class Recombination(ConfigRecipe):
+
+    key = 'chromosomes:recombination'
+
+    @classmethod
+    def apply(cls, node):
+        rec = [v for c in node.children for v in c.children if v.id == 'recombination']
+
+        loci = []
+        for r in rec:
+            chrom = get_chromosome(r)
+            pos = get_list_of_values(r.descendent('at'))
+            rate = get_list_of_values(r.descendent('rate'))
+            if len(rate) == 1 or len(rate) == len(pos):
+                loci.append(Locus(rate, chrom, pos, [(ALL_AVAIL, ALL_AVAIL)]))
+            else:
+                raise Error
+
+        return loci
