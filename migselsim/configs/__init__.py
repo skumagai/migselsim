@@ -74,19 +74,24 @@ class Node(object):
         # first find a node or nodes with appropriate names.
         # then convert/cast the value into directly usable format by
         # calling convert() method of each associated recipe.
-        match = [node for node in self.descendents() if node.id == key]
-        n_match = len(match)
-        if n_match > 1:
-            values = [ConfigRecipe.plugins(key).apply(node) for node in match]
-        elif n_match == 1:
-            if key in ConfigRecipe.plugins:
-                values = ConfigRecipe.plugins[key].apply(match[0])
-            else:
-                values = match[0].value
-        else:
-            values = None
 
-        return values
+        while key.find(':') > -1:
+            if key in ConfigRecipe.plugins:
+                okey = key.split(':', 1)[0]
+                hits = [ConfigRecipe.plugins[key].apply(node) for node in self.descendents()
+                        if node.id == okey]
+            else:
+                key, rest = key.split(':', 1)
+                hits = [node.get(rest) for node in self.descendents() if node.id == key]
+            return list(flatten(hits))
+
+        hits = [node for node in self.descendents() if node.id == key]
+        if key in ConfigRecipe.plugins:
+            values = [ConfigRecipe.plugins[key].apply(node) for node in hits]
+        else:
+            values = [node.value for node in hits]
+
+        return list(flatten(values))
 
     def addChild(self, child):
         """Add reference to a child node."""
@@ -212,3 +217,16 @@ def print_node(node, level):
     print ' ' * 2 * level + '-' +  node.id
     for child in node.children:
         print_node(child, level + 1)
+
+
+def flatten(l):
+    """flatten list of arbitrary depth.
+
+    Authored by cristian at stackoverflow.com (http://stackoverflow.com/questions/2158395/flatten-an-irregular-list-of-lists-in-python)
+    """
+    for el in l:
+        if isinstance(el, collections.Iterable) and not isinstance(el, basestring):
+            for sub in flatten(el):
+                yield sub
+        else:
+            yield el
