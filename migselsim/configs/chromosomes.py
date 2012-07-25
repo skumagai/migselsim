@@ -1,6 +1,6 @@
 # -*- mode: python; coding: utf-8; -*-
 
-from migselsim.definition import AUTOSOME, CHROMOSOME_X, CHROMOSOME_Y, MITOCHONDRIAL, ALL_AVAIL
+from migselsim.definition import AUTOSOME, CHROMOSOME_X, CHROMOSOME_Y, MITOCHONDRIAL, ALL_AVAIL, MALE, FEMALE
 from migselsim.configs import ConfigRecipe
 from migselsim.configs.utils import get_chromosome, get_position, get_list_of_values, Locus
 
