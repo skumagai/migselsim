@@ -53,10 +53,24 @@ class Recombination(ConfigRecipe):
         for r in rec:
             chrom = get_chromosome(r)
             pos = get_list_of_values(r.descendent('at'))
-            rate = get_list_of_values(r.descendent('rate'))
-            if len(rate) == 1 or len(rate) == len(pos):
-                loci.append(Locus(rate, chrom, pos, [(ALL_AVAIL, ALL_AVAIL)]))
+            n_pos = len(pos)
+            rate_node = r.descendent('rate')
+            sex_specific = rate_node.descendent('male')
+            if sex_specific is None:
+                loci.append(cls.set_rate(rate_node, chrom, pos, [(ALL_AVAIL, ALL_AVAIL)]))
             else:
-                raise Error
-
+                for sex in rate_node.children:
+                    if sex.id == 'male':
+                        s = MALE
+                    else:
+                        s = FEMALE
+                    loci.append(cls.set_rate(sex, chrom, pos, [(ALL_AVAIL, s)]))
         return loci
+
+    @staticmethod
+    def set_rate(node, chrom, pos, loc):
+        rate = get_list_of_values(node)
+        if len(rate) == 1 or len(rate) == len(pos):
+            return Locus(rate, chrom, pos, loc)
+        else:
+            raise Error
