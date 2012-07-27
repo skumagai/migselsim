@@ -6,6 +6,8 @@ import os.path
 from migselsim.commands import CommandPlugin
 from migselsim.baseparser import command_parsers, parser
 from migselsim.simulator import Simulator
+from migselsim.configs import parse_config
+from migselsim.configs import ConfigRecipe as cp
 from migselsim.log import logger
 
 class Run(CommandPlugin):
@@ -19,6 +21,7 @@ class Run(CommandPlugin):
     # any class or instance method.
     subparser = command_parsers.add_parser(key, help = 'description')
     subparser.add_argument('conffile', nargs = '?')
+    cp.scan()
 
     @classmethod
     def execute(cls, args):
