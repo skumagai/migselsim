@@ -71,6 +71,11 @@ class SelectionCoefficient(ConfigRecipe):
                     if n.id == 'selection coefficient']
 
         position = get_position(node)
+        # selection must be specified locus-by-locus.
+        if len(position) != 1:
+            raise Error
+        else:
+            position = position[0]
         chromosome = get_chromosome(node)
 
         # make sure there is a single specification of selection
