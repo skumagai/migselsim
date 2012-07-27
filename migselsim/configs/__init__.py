@@ -141,7 +141,7 @@ class Node(object):
         descendents = []
         stack = list(self.children)
         while len(stack) > 0:
-            top = stack.pop()
+            top = stack.pop(0)
             descendents.append(top)
             stack.extend(top.children)
         return descendents
