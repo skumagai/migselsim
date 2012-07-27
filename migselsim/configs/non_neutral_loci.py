@@ -36,7 +36,7 @@ class InitialFrequency(ConfigRecipe):
         test_node = init_freq.children[0]
         if hasattr(test_node, 'value'):
             # no sex- and deme-specific selection
-            return build_loci_from_list(f, init_freq, chromosome, position, (ALL_AVAIL, ALL_AVAIL))
+            return build_loci_from_list(f, init_freq, chromosome, position, [(ALL_AVAIL, ALL_AVAIL)])
         elif test_node.id == 'male' or test_node.id == 'female':
             # sex-specific but not deme-specific
             return build_loci_from_sex_dict(f, init_freq, chromosome, position, ALL_AVAIL)
