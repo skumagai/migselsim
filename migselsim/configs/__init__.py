@@ -174,6 +174,10 @@ class Node(object):
         else:
             return None
 
+    def _getNode2(self, id_):
+        """find a list of node with specific id in descendent of self."""
+        return [n for n in self.descendents() if n.id == id_]
+
 
 
 
