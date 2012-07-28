@@ -14,7 +14,7 @@ import simuPOP
 from simuPOP import MALE, FEMALE, UNIFORM_DISTRIBUTION, \
     AUTOSOME, CHROMOSOME_X, CHROMOSOME_Y, MITOCHONDRIAL, ALL_AVAIL, \
     PER_LOCI, PER_INDIVIDUAL, PER_PLOIDY, PER_CHROMOSOME, \
-    BY_PROBABILITY, BY_PROPORTION
+    BY_PROBABILITY, BY_PROPORTION, PROB_OF_MALES
 
 # metadata of this package.  This is likely to change once I start
 # to use distutils2/packaging instead of setuptools/distutils.

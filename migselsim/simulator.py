@@ -3,7 +3,7 @@
 """Encapsulate simuPOP individual, population, and simulator classes."""
 
 from migselsim.definition import simuPOP as sim
-from migselsim.definition import MALE, FEMALE, PER_PLOIDY, ALL_AVAIL, NO_STRUCTURE
+from migselsim.definition import MALE, FEMALE, PER_PLOIDY, ALL_AVAIL, NO_STRUCTURE, PROB_OF_MALES, MITOCHONDRIA
 
 class Simulator(object):
     """Manage and run actual simulations."""
@@ -12,176 +12,175 @@ class Simulator(object):
         self.tree = tree
         # initialize population with given information.
         self._setPopulation()
-        self.sim = sim.Simulator(self.pop)
         self._setInitOps()
         self._setPreOps()
         self._setPostOps()
         self._setMatingScheme()
+        # self.sim = sim.Simulator(pops = self.pop)
 
     def _setPopulation(self):
         """configure attributes of a population from a tree of configuration options."""
         tree = self.tree
         size = tree.get('population size')
+        print size
         loci = tree.get('number of loci')
-        chromTypes = tree.get('chromosome types')
-        chromNames = tree.get('chromosome ids')
-        subPopNames = tree.get('subpopulation name')
+        chromTypes = tree.get('chromosomes:type')
+        chromNames = tree.get('chromosomes:id')
         self.pop = sim.Population(size = size,
                                   ploidy = 2,
                                   loci = loci,
                                   chromTypes = chromTypes,
-                                  subPopNames = subPopNames,
+                                  chromNames = chromNames,
                                   infoFields = ['fitness', 'migrate_to'])
         self.pop.setVirtualSplitter(sim.SexSplitter())
-
-
+        print self.pop.chromTypes()
+        print (AUTOSOME, CHROMOSOME_X)
 
 
     def run(self):
         """Run simulations"""
-        self.sim.evolve(initOps = self.initOps,
-                        preOps = self.preOps,
-                        matingScheme = self.matingScheme,
-                        postOps = self.postOps)
+        pass
+        # self.sim.evolve(initOps = self.initOps,
+        #                 preOps = self.preOps,
+        #                 matingScheme = self.matingScheme,
+        #                 postOps = self.postOps)
 
-    def initOps(self):
+    def _setInitOps(self):
         """Set up operations, which are performed at the beginning of a simulation."""
         # set sex for each deme separately so that sex ratio of demes
         # are roughly identical.
         pop = self.pop
+
         tree =self.tree
         pop_size = tree.get("population size")
-        male_prop = tree.get("proportion of male")
-        non_neutral_loci = tree.get("non-neutral loci")
+        male_prop = tree.get("proportion of male")[0]
 
         ops = []
+        # by setting initial proportion of males separetely to each
+        # deme, I have finer control of the proportion.  Otherwise,
+        # proportion in each population might not exactly be as
+        # desired.
         prop = [sim.InitSex(maleProp = male_prop, subPops = [i]) for i in range(len(pop_size))]
 
-        # Initialize genotype sex-by-sex and deme-by-deme basis.
-        # This could be highly more efficient but it's not worth it,
-        # as they are called only once at the beginning of a
-        # simulation.
-        try:
-            geno = [_construct_genotype(locus) for locus in self.non_neutral_loci]
-        except:
-            geno = []
+        # We only care allele frequencies of non-neutral loci, because
+        # we keep track of lineages rather than alleles for neutral
+        # loci.
+        geno = [sim.InitGenotype(freq  = g.val,
+                                 loci = [pop.absLocusIndex(g.chrom, locus)
+                                         for locus in g.loci],
+                                 subPops = g.subPops)
+                for g in tree.get("non-neutral loci:initial frequency")]
+
 
         # Initialize lineage.  All genes on the first set of chromosomes have the same id.
         # Similarly, all genes on the second set of chromosomes have the same id.
         # However, these ids are different between the first and second sets of chromosomes.
         # This scheme can be specified as mode = PER_PLOIDY in simuPop.InitLineage.
-        lineage = sim.InitLineage(lineage = range(2 * sum(self.population_size)),
+        lineage = sim.InitLineage(lineage = range(2 * sum(pop_size)),
                                   mode = PER_PLOIDY)
 
         # combine all initializers
         ops.extend(prop)
         ops.extend(geno)
         ops.append(lineage)
-        return ops
+        self.intiOps = ops
 
-    def preOps(self):
+    def _setPreOps(self):
+        tree = self.tree
         pop = self.pop
         ops = []
         # selection
-        try:
-            # If there is at least one locus that is under sex- or
-            # deme-specific selection, there should be enough number
-            # of separate MlSelectors.
-            # For example, suppose there are three demes, and
-            # selection is deme-specific but not sex-specific.  Then,
-            # we need three MlSelectors.
-            # If selection is also sex-specific, we need 6 selectors.
+        # Because MlSelector only works well if all single locus
+        # selectors (MapSelector) target to the same
+        # populations, I must filter and separete selection schemes by
+        # target populations.
 
-            # Find if selection is deme-specific (in at least one deme).
-            deme_specific = any(NO_STRUCTURE != locus['deme'] for locus in self.non_neutral_loci)
+        # identify and separate the number of targets population.
+        targets = {}
+        for s in tree.get('non-neutral loci:selection coefficient'):
+            # because list is not hashable, convert deme (originally a
+            # list) to tuple.
+            deme = tuple(s.subPops)
+            if deme not in targets:
+                targets[deme] = [s]
+            else:
+                targets[deme].append(s)
 
-            # Find if selection is sex-specific.
-            sex_specific = any(NO_STRUCTURE != locus['sex'] for locus in self.non_neutral_loci)
-
-            if deme_specific or sex_specific:
-                sel = [sim.MlSelector(
-                        ops = [sim.MapSelector(loci = pop.absLocusIndex(locus['chromosome'],
-                                                                        locus['position']),
-                                               fitness = locus['coeff'],
-                                               subPops = [_form_subdeme(locus['deme'],
-                                                                        locus['sex'])])
-                               for locus in self.non_neutral_loci],
-                        mode=MULTIPLICATIVE)]
-        except:
-            sel = []
-
+        sel = [sim.MapSelector(loci = pop.absLocusIndex(s[0].chrom, s[0].loci),
+                               fitness = s[0].val,
+                               subPops = s[0].subPops)
+               if len(s) == 1 else
+               sim.MlSelector(ops =
+                              [sim.MapSelector(loci = pop.absLocusIndex(ss.chrom, ss.loci),
+                                               fitness = ss.val,
+                                               subPops = ss.subPops)
+                               for ss in s],
+                              subPops = s[0].subPops)
+               for s in targets.itervalues()]
 
         # migration
-        try:
-            if self.migration[0]['sex'] == ALL_AVAIL:
-                # sex-nonspecific migration, and length of self.migration
-                # is 1.
-                mig = self.migration[0]
-                migs = [sim.Migrator(rate = mig['matrix'],
-                                     mode = mig['type'])]
-            else:
-                # sex-specific migration
-                npop = len(sim.population_size)
-                mig = [sim.Migrator(rate = mig['matrix'][sex],
-                                    mode = mig['type'],
-                                    subPops = [(deme, vidx) for deme in range(npop)])
-                       for (sex, vidx) in zip(['male', 'female'], [0,1])]
-        except:
-            # no migration.
-            mig = []
+        mig = [sim.Migrator(rate = matrix.val)
+               for matrix in tree.get('migration:matrix')]
 
         # combine all premating operations
         ops.extend(sel)
         ops.extend(mig)
-        return ops
+        self.preOps = ops
 
 
-    def postOps(self):
+    def _setPostOps(self):
         pop = self.pop
+        pop_size = sum(self.tree.get('population size'))
         ops = []
         # renumber lineage ids, thereby lineage information refers to unique chromosome
         # in the current generation.
-        ops.append(sim.InitLineage(lineage = range(2 * sum(self.population_size)),
+        ops.append(sim.InitLineage(lineage = range(2 * pop_size),
                                   mode = PER_PLOIDY))
-        return ops
+        self.postOps = ops
 
-    def matingScheme(self):
+    def _setMatingScheme(self):
         pop = self.pop
-        recs = sim.Recombinator()
-        return sim.RandomMating(ops = recs)
+        tree = self.tree
+
+        numOffspring = tree.get('number of offspring per mating')[0]
+        pop_size = tree.get('population size')
+        sex_ratio = tree.get('proportion of male')[0]
+        mating_mode = tree.get('mating:mode')[0]
+        if mating_mode == 'exact':
+            sex_mode = (PROB_OF_MALES, sex_ratio)
+        else:
+            raise Error
 
 
-def _construct_genotype(locus):
-    # subPops need to be constructed before passing to InitGenotype,
-    # because specifial handling is required when no sex- and deme
-    # specificity is required.
-    prop = locus['prop']
-    loci = pop.absLocusIndex(locus['chromosome'], locus['position'])
-    deme = locus['deme']
-    sex = locus['sex']
-    if deme == NO_STRUCTURE and sex == NO_STRUCTURE:
-        return sim.InitGenotype(prop = prop, loci = loci)
-    # elif deme == NO_STRUCTURE:
-    #     all_demes = range(len(self.population_size))
-    #     return sim.InitGenotype(prop = prop, loci = loci,
-    #                        subPops = [_form_subdeme(deme, sex) for deme in all_demes])
-    # elif sex == NO_STRUCTURE:
-    #     all_demes = range(len(self.population_size))
-    #     return sim.InitGenotype(prop = prop, loci = loci, subPops = all_demes)
-    else:
-        all_demes = range(len(self.population_size))
-        all_vpops = [_form_subdeme(deme, sex) for deme in all_demes]
-        return sim.InitGenotype(prop = prop, loci = loci, subPops = all_vpops)
+        # construct a list for ops parameter in RandomMating.
+        # 0. Use MendelianGenoTransmitter() all the time.  This works
+        # as fall-back transmitter for non-mitochondrial chromosomes
+        # when no recombination is specified on some chromosomes.
+        ops = [MendelianGenoTransmitter()]
+        # 1. If there is mitochondrial chromosome, we need to specify
+        # MitochondrialGenoTransmitter for the chromosome.
+        chromTypes = pop.chromTypes()
+        if MITOCHONDRIAL in chromTypes:
+            ops.append(MitochondrialGenoTransmitter(
+                    chroms=[i for i, dummy in enumearete(chromTypes) if i == MITOCHONDRIAL]))
+        # 2. Build *separete* Recombinator for each virtual
+        # subpopulation if neccessary.  Similar to selection, it is
+        # necessary that each (virtual) subpopulation corresponds to
+        # only one Recombinator.
+        # 2.a convert positions of loci into absolute index.
+        # recs = tree.get('chromosomes:recombination')
+        # pos = [pop.absLocusIndex(rec.chrom, rec.loci) for rec in recs]
+        # rates = [rec.val for rec in recs]
+        # [sim.Recombinator(rate = rec.val,
+        #                   loci = [pop.absLocusIndex(rec.chrom,
+        #                                             locus)
+        #                           for locus in rec.loci],
+        #                   subPops = rec.subPops)
+        #  for rec in tree.get('chromosomes:recombination')]
 
-def _form_subdeme(loc, sex):
-    """return tuple indicating subdemes.  The size of tuple depends on both deme- and
-    sex-specificty of non-neutral loci."""
-    if loc != NO_STRUCTURE and sex != NO_STRUCTURE:
-        return (loc, sex)
-    elif loc != NO_STRUCTURE:
-        return (loc)
-    elif sex != NO_STRUCTURE:
-        return (sex)
-    else:
-        # should not reach to this branch.
-        return ()
+
+        sim.RandomMating(subPopSize = pop_size,
+                         sexMode = sex_mode,
+                         ops = ops)
+        # recs = sim.Recombinator()
+        # return sim.RandomMating(ops = recs)
