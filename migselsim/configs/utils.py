@@ -1,6 +1,9 @@
 # -*- mode: python; coding: utf-8; -*-
 
+import re
+
 from migselsim.definition import MALE, FEMALE, ALL_AVAIL
+from migselsim.definition import SCENARIO as s
 
 class Locus(object):
     def __init__(self, val, chrom, loci, subPops):
@@ -23,7 +26,17 @@ def get_dict_of_values(node):
 
 
 def get_chromosome(node):
-    return int(node.parent.id[11:])
+    n = node
+    pattern = 'chromosomes\d+'
+    hit = re.search(pattern, n.id)
+    while n.parent is not None and hit is None:
+        n = n.parent
+        hit = re.search(pattern, n.id)
+
+    if n is not None:
+        return n.parent.children.index(n)
+    else:
+        raise Error
 
 def get_position(node):
     pos = [pos for c in node.children for pos in c.children
