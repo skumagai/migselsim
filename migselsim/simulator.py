@@ -76,7 +76,7 @@ class Simulator(object):
         # Similarly, all genes on the second set of chromosomes have the same id.
         # However, these ids are different between the first and second sets of chromosomes.
         # This scheme can be specified as mode = PER_PLOIDY in simuPop.InitLineage.
-        lineage = sim.InitLineage(lineage = range(2 * sum(pop_size)),
+        lineage = sim.InitLineage(lineage = range(1, 2 * sum(pop_size) + 1),
                                   mode = PER_PLOIDY)
 
         # combine all initializers
@@ -134,7 +134,7 @@ class Simulator(object):
         ops = []
         # renumber lineage ids, thereby lineage information refers to unique chromosome
         # in the current generation.
-        ops.append(sim.InitLineage(lineage = range(2 * pop_size),
+        ops.append(sim.InitLineage(lineage = range(1, 2 * pop_size + 1),
                                   mode = PER_PLOIDY))
         self.postOps = ops
 

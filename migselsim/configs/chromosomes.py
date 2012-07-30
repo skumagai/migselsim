@@ -3,7 +3,7 @@
 from migselsim.definition import AUTOSOME, CHROMOSOME_X, CHROMOSOME_Y, MITOCHONDRIAL, ALL_AVAIL, MALE, FEMALE
 from migselsim.definition import SCENARIO as s
 from migselsim.configs import ConfigRecipe
-from migselsim.configs.utils import get_chromosome, get_position, get_list_of_values, choose_most_specific_scenario, get_scenario, build_loci
+from migselsim.configs.utils import get_chromosome, get_position, get_list_of_values, choose_most_specific_scenario, get_scenario, build_loci, Locus
 
 class ChromosomalType(ConfigRecipe):
     key = 'chromosomes:type'
@@ -69,7 +69,13 @@ class Recombination(ConfigRecipe):
                 rate = rate[0]
             loci.extend(build_loci(f, rate, chromosome, pos, scenario, true_scenario, n_demes))
 
-        return loci
+        new_loci = []
+        for l in loci:
+            new_loci.extend([Locus(v, l.chrom, p, l.subPops)
+                             for v, p in zip(l.val, l.loci)])
+
+
+        return new_loci
 
     @staticmethod
     def set_rate(node, chrom, pos, loc):
