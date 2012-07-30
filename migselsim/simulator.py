@@ -3,7 +3,7 @@
 """Encapsulate simuPOP individual, population, and simulator classes."""
 
 from migselsim.definition import simuPOP as sim
-from migselsim.definition import MALE, FEMALE, PER_PLOIDY, ALL_AVAIL, NO_STRUCTURE, PROB_OF_MALES, MITOCHONDRIA
+from migselsim.definition import MALE, FEMALE, PER_PLOIDY, ALL_AVAIL, NO_STRUCTURE, PROB_OF_MALES, MITOCHONDRIAL
 
 class Simulator(object):
     """Manage and run actual simulations."""
@@ -153,34 +153,36 @@ class Simulator(object):
 
 
         # construct a list for ops parameter in RandomMating.
-        # 0. Use MendelianGenoTransmitter() all the time.  This works
-        # as fall-back transmitter for non-mitochondrial chromosomes
-        # when no recombination is specified on some chromosomes.
+        # 1. Set MendelianGenoTransmitter() all the time.  This acts
+        # as a fall-back transmitter for non-mitochondrial chromosomes
+        # when no recombination is specified on them.
         ops = [MendelianGenoTransmitter()]
-        # 1. If there is mitochondrial chromosome, we need to specify
+        # 2. If there is mitochondrial chromosome, we need to specify
         # MitochondrialGenoTransmitter for the chromosome.
         chromTypes = pop.chromTypes()
         if MITOCHONDRIAL in chromTypes:
             ops.append(MitochondrialGenoTransmitter(
-                    chroms=[i for i, dummy in enumearete(chromTypes) if i == MITOCHONDRIAL]))
-        # 2. Build *separete* Recombinator for each virtual
+                    chroms=[i for i, j in enumearete(chromTypes) if j == MITOCHONDRIAL]))
+        # 3. Build *separete* Recombinator for each virtual
         # subpopulation if neccessary.  Similar to selection, it is
         # necessary that each (virtual) subpopulation corresponds to
         # only one Recombinator.
-        # 2.a convert positions of loci into absolute index.
-        # recs = tree.get('chromosomes:recombination')
-        # pos = [pop.absLocusIndex(rec.chrom, rec.loci) for rec in recs]
-        # rates = [rec.val for rec in recs]
-        # [sim.Recombinator(rate = rec.val,
-        #                   loci = [pop.absLocusIndex(rec.chrom,
-        #                                             locus)
-        #                           for locus in rec.loci],
-        #                   subPops = rec.subPops)
-        #  for rec in tree.get('chromosomes:recombination')]
+        recs = tree.get('chromosomes:recombination')
+        recs_dict = {}
+        for r in recs:
+            subPops = tuple(subPops)
+            if subPops in recs_dict:
+                recs_dict[subPops].append(r)
+            else:
+                recs_dict[subPops] = [r]
 
+        # 2.a convert positions of loci into absolute index, and set
+        # up Recombinators.
+        ops = [sim.Recombinator(rate = [r.val for r in r_list],
+                                loci = [pop.absLocusIndex(r.chrom, r.loci) for r in r_list],
+                                subPops = r[0].subPops)
+         for r_list in recs_dict.iteritems()]
 
         sim.RandomMating(subPopSize = pop_size,
                          sexMode = sex_mode,
                          ops = ops)
-        # recs = sim.Recombinator()
-        # return sim.RandomMating(ops = recs)
