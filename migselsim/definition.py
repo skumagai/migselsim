@@ -21,6 +21,12 @@ from simuPOP import MALE, FEMALE, UNIFORM_DISTRIBUTION, \
 # Then metadata is defined in PKG-INFO file.
 from migselsim import metadata
 
+def enum(*seq, **named):
+    enums = dict(zip(seq, range(len(seq))), **named)
+    return type('Enum', (), enums)
+
+SCENARIO = enum('NOT_SPECIFIC', 'SEX_SPECIFIC', 'DEME_SPECIFIC', 'SEX_AND_DEME_SPECIFIC')
+
 COMMAND = __name__.split('.')[0]
 VERSION = metadata.__version__
 

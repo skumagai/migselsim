@@ -1,8 +1,9 @@
 # -*- mode: python; coding: utf-8; -*-
 
 from migselsim.definition import AUTOSOME, CHROMOSOME_X, CHROMOSOME_Y, MITOCHONDRIAL, ALL_AVAIL, MALE, FEMALE
+from migselsim.definition import SCENARIO as s
 from migselsim.configs import ConfigRecipe
-from migselsim.configs.utils import get_chromosome, get_position, get_list_of_values, Locus
+from migselsim.configs.utils import get_chromosome, get_position, get_list_of_values, choose_most_specific_scenario, get_scenario, build_loci
 
 class ChromosomalType(ConfigRecipe):
     key = 'chromosomes:type'
@@ -47,24 +48,27 @@ class Recombination(ConfigRecipe):
 
     @classmethod
     def apply(cls, node):
-        rec = [v for c in node.children for v in c.children if v.id == 'recombination']
 
+        scenario = choose_most_specific_scenario(node, 'recombination', 'rate')
+
+        recs = node.getNodes('recombination')
         loci = []
-        for r in rec:
-            chrom = get_chromosome(r)
+        f = get_list_of_values
+        # f = lambda x: x
+        n_demes = len(node.root().get('population size'))
+        for r in recs:
+            chromosome = get_chromosome(r)
             pos = get_list_of_values(r.descendent('at'))
             n_pos = len(pos)
-            rate_node = r.descendent('rate')
-            sex_specific = rate_node.descendent('male')
-            if sex_specific is None:
-                loci.append(cls.set_rate(rate_node, chrom, pos, [(ALL_AVAIL, ALL_AVAIL)]))
+            true_scenario = get_scenario(r, 'rate')
+
+            rate = r.getNodes('rate')
+            if len(rate) != 1:
+                raise Error
             else:
-                for sex in rate_node.children:
-                    if sex.id == 'male':
-                        s = MALE
-                    else:
-                        s = FEMALE
-                    loci.append(cls.set_rate(sex, chrom, pos, [(ALL_AVAIL, s)]))
+                rate = rate[0]
+            loci.extend(build_loci(f, rate, chromosome, pos, scenario, true_scenario, n_demes))
+
         return loci
 
     @staticmethod
