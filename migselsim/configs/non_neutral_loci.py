@@ -1,7 +1,7 @@
 # -*- mode: python; coding: utf-8; -*-
 
 from migselsim.configs import ConfigRecipe
-from migselsim.configs.utils import get_chromosome, get_position, get_list_of_values, get_dict_of_values, Locus, build_loci_from_list, build_loci_from_sex_dict
+from migselsim.configs.utils import get_chromosome, get_position, get_list_of_values, get_dict_of_values, Locus, build_loci_from_list, build_loci_from_sex_dict, choose_most_specific_scenario
 from migselsim.definition import ALL_AVAIL, MALE, FEMALE
 
 class NonNeutralLoci(ConfigRecipe):
