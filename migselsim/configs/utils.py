@@ -4,6 +4,7 @@ import re
 
 from migselsim.definition import MALE, FEMALE, ALL_AVAIL
 from migselsim.definition import SCENARIO as s
+from migselsim.configs.exceptions import NodeNotFound
 
 class Locus(object):
     def __init__(self, val, chrom, loci, subPops):
@@ -36,10 +37,10 @@ def get_chromosome(node):
         n = n.parent
         hit = re.search(pattern, n.id)
 
-    if n is not None:
+    if n.parent is not None:
         return n.parent.children.index(n)
     else:
-        raise Error
+        raise NodeNotFound
 
 def get_position(node):
     pos = [pos for c in node.children for pos in c.children

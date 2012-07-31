@@ -5,7 +5,8 @@ import collections, os
 import yaml
 
 from migselsim.baseplugin import PluginMount, Plugin
-from migselsim.configs.exceptions import InvalidNodePositionError, DuplicateNodeError, KeyConflictError
+from migselsim.configs.exceptions import WrongPosition, NodeRepeated, ConflictingNodes
+from migselsim.configs.node import Node
 
 # Register config plugins by scanning the directory and import all modules.
 # Imported plugins are normal python file (*.py), and their names need not
@@ -48,136 +49,13 @@ class ConfigRecipe(Plugin):
     @classmethod
     def validate(cls, node):
         if node.parent.id != cls.parent:
-            raise InvalidNodePositionError(node.id, node.parent)
+            raise WrontPosition
         root = node.root()
         if cls.conflict != None:
             root = node.root()
             conflicts = [node.find(id_) for id_ in cls.conflict]
             if not all([conf == None for conf in conflicts]):
-                raise KeyConflictError(node.id, cls.conflicts)
-
-
-class Node(object):
-    """Node of configuration options."""
-    def __init__(self, id_, parent):
-        self._id = id_
-        self._parent = parent
-        self._children = []
-
-
-    def get(self, key):
-        """Obtain value of in descendents of a current node with node with right id.
-
-        If more than one descendent nodes have term as their IDs, a list of values of such
-        nodes is returned.  Otherwise, return a single value."""
-        # first find a node or nodes with appropriate names.
-        # then convert/cast the value into directly usable format by
-        # calling convert() method of each associated recipe.
-
-        while key.find(':') > -1:
-            if key in ConfigRecipe.plugins:
-                okey = key.split(':', 1)[0]
-                hits = [ConfigRecipe.plugins[key].apply(node) for node in self.descendents()
-                        if node.id == okey]
-            else:
-                key, rest = key.split(':', 1)
-                hits = [node.get(rest) for node in self.descendents() if node.id == key]
-            return list(flatten(hits))
-
-        hits = [node for node in self.descendents() if node.id == key]
-        if key in ConfigRecipe.plugins:
-            values = [ConfigRecipe.plugins[key].apply(node) for node in hits]
-        else:
-            values = [node.value for node in hits]
-
-        return list(flatten(values))
-
-    def addChild(self, child):
-        """Add reference to a child node."""
-        self.children.append(child)
-
-    @property
-    def children(self):
-        """return a list of all children."""
-        return self._children
-
-    @property
-    def id(self):
-        """return a name of current node."""
-        return self._id
-
-    @property
-    def parent(self):
-        """return a parental node."""
-        return self._parent
-
-    def root(self):
-        """return a root node of a tree."""
-        root = self.parent
-        while root.parent != None:
-            root = root.parent
-        return root
-
-    def allNodes(self):
-        """return a list of all nodes in a tree."""
-        root = self.root()
-        return [root] + root.descendents()
-
-    def ancestors(self):
-        """return a list of all ancestors."""
-        parent = self.parent
-        ancestors = [parent]
-        while parent != None:
-            ancestores.append(parent.parent)
-        return ancestors
-
-
-    def ancestor(self, id_):
-        """return an ancestor with name id_."""
-        return self._getNode(id_, self.ancestors())
-
-    def descendents(self):
-        """return a list of all descendents."""
-        descendents = []
-        stack = list(self.children)
-        while len(stack) > 0:
-            top = stack.pop(0)
-            descendents.append(top)
-            stack.extend(top.children)
-        return descendents
-
-    def descendent(self, id_):
-        """return a descendent with name id_."""
-        return self._getNode(id_, self.descendents())
-
-    def siblings(self):
-        """return a list of sibling nodes except itself."""
-        parent = self.parent
-        return [child for child in parent.children if child != self]
-
-    def getValueOf(self, id_):
-        """return a value of one of descendent node."""
-        return self.descendent(id_).value
-
-    def find(self, id_):
-        """find a node with a specific id within a tree."""
-        return self._getNode(id_, [self] + node.ancestors + node.descendent)
-
-    def _getNode(self, id_, nodes):
-        """find a node with a specific id in a list of nodes, and return the node."""
-        node = [n for n in nodes if n.id == id_]
-        nnode = len(node)
-        if nnode == 1:
-            return node[0]
-        elif nnode > 1:
-            raise DuplicateNodeError(id_)
-        else:
-            return None
-
-    def getNodes(self, id_):
-        """find a list of node with specific id in descendent of self."""
-        return [n for n in self.descendents() if n.id == id_]
-
+                raise ConflictingNodes
 
 
 
