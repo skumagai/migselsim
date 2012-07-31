@@ -12,6 +12,9 @@ class Locus(object):
         self.loci = loci
         self.subPops = subPops
 
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
 
 def get_list_of_values(node):
     if len(node.children) == 0 and hasattr(node, 'value'):
