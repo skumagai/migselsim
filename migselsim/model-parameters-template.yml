@@ -22,7 +22,10 @@ genetic structure:
           # for a locus to be non-neutral.
           # The upper bound comes from the limitation of 'lineage' version of simuPOP, which
           # stores allelic information encoded in 8 bits unsign integer type.
-          initial frequency: [0.2, 0.8]
+          # initial frequency: [0.2, 0.8]
+          # initial frequency: {male: [0.1, 0.9], female: [0.3, 0.7]}
+          # initial frequency: [[0.1, 0.9], [0.3, 0.7]]
+          initial frequency: [{male: [0.1, 0.9], female: [0.3, 0.7]}, {male: [0.9, 0.1], female: [0.7, 0.3]}]
           # initial frequencies of alleles given as a list, whose elements sum to unity.
           # Length of this list must be the number of alleles.
           #
@@ -49,7 +52,10 @@ genetic structure:
           # e.g. [{male: [0.1, 0.9], female: [0.3, 0.7]},
           #       {male: [0.9, 0.1], female: [0.7, 0.3]}
           #  for two-deme system.
-          selection coefficient: {'(0,0)': 0.1, '(0,1)': 0.2, '(1,1)': 0.3}
+          # selection coefficient: {'(0,0)': 0.1, '(0,1)': 0.2, '(1,1)': 0.3}
+          # selection coefficient: [{'(0,0)': 0.1, '(0,1)': 0.2, '(1,1)': 0.3}, {'(0,0)': 0.4, '(0,1)': 0.5, '(1,1)': 0.6}]
+          # selection coefficient: {male: {'(0,0)': 0.1, '(0,1)': 0.2, '(1,1)': 0.3}, female: {'(0,0)': 0.9, '(0,1)': 0.8, '(1,1)': 0.7}}
+          selection coefficient: [{male: {'(0,0)': 0.1, '(0,1)': 0.2, '(1,1)': 0.3}, female: {'(0,0)': 0.9, '(0,1)': 0.8, '(1,1)': 0.7}}, {male: {'(0,0)': 0.9, '(0,1)': 0.6, '(1,1)': 0.3}, female: {'(0,0)': 0.6, '(0,1)': 0.5, '(1,1)': 0.4}}]
           # The basic idea is to assign selection coefficient to each genotype represtented as
           # a tuple, and the tuples are keys in a dict of coefficients.  Note that (0,1) is
           # considered to be identical genotype as (1,0) so that only one of them needs to be
@@ -82,17 +88,23 @@ genetic structure:
           #        female: {(0,0): 0.3, (0,1): 0.2, (1,1): 0.1}},
           #       {male: {(0,0): 0.4, (0,1): 0.5, (1,1): 0.6},
           #        female: {(0,0): 0.6, (0,1): 0.5, (1,1): 0.4}}]
-      recombination scheme:
-        rate: 0.01
-        # recombination rate between two neighboring loci.  This can take a single float
-        # for uniform recombination rate at all recombination sites, a list, whose length
-        # equals the length of 'at' list, for site-specific recombination rates.  Note that
-        # these forms are for sex-nonspecific cases.
-        #
-        # For sex-specific cases, a dict with keys 'male' and 'female' can be used.  For
-        # each entry, value is either a float or a list as in the base cases.
-        #
-        # Unlike selection scheme, deme-specific recombination is not supported.
+      recombination:
+        rate: [0.01, 0.1]
+        # rate: [[0.1,0.2], [0.3, 0.4]]
+        # rate: {male: [0.01, 0.1], female: [0.02, 0.2]}
+        # rate: [{male: [0.1, 0.01], female: [0.2, 0.02]}, {male: [0.3, 0.03], female: [0.4, 0.04]}]
+        # recombination rate between two neighboring loci.
+        # This can take a list of float with n-elements, for n the
+        # number of recombination sites.  In this case, recombination is
+        # neither deme- nor sex-specific.
+        # The second form is a nested list, where inner list is of the
+        # form of first case.  This is for deme-specific case.
+        # The third form is for sex-specific case, where a dict, which has
+        # two keys: 'male' and 'female'.  Value for each key is a list
+        # of the first form.
+        # The final form is for deme- and sex-specific case.  In this
+        # a list of dicts are used, where the outer list again
+        # corresponds to demes, and dicts to sexes.
         at: [0, 1]
         # location of recombinations. Recombination happens between at[i]-th locus and
         # (at[i] + 1)-th locus.  When omitted, recombinationo happens between every single
@@ -108,8 +120,8 @@ population structure:
   # if sequence is given, population size of i-th subpopulation is
   # i-th element of this seqeunce.
   # the length of sequnce has to be identical to number of demes,
-  mating scheme:
-    mating type: random mating
+  mating:
+    type: random mating
     number of offspring per mating: 1
     offspring sex:
       proportion of male: 0.5
@@ -118,7 +130,7 @@ population structure:
       # 'by probability' each offspring has `'proportion of male` change of
       # being male.
       mode: exact
-  migration scheme:
+  migration:
     # defines migration scheme
     type: 'probability'
     # type of migration scheme: if type is 'probability', migratin matrix will contain
