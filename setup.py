@@ -15,16 +15,16 @@ def get_metadata(lines):
     return data
 
 
-with open(os.path.join(packagename, 'metadata.py'), 'r') as f:
-    metadata = get_metadata(f.readlines[1:])
+with open(os.path.join(package, 'metadata.py'), 'r') as f:
+    metadata = get_metadata(f.readlines()[1:])
 
 here = os.path.abspath(os.path.dirname(__file__))
 long_description = open(os.path.join(here, 'README.rst')).read()
 
 setup(
     name = package,
-    version = metadata['version']
-    author = metadata['author']
+    version = metadata['version'],
+    author = metadata['author'],
     author_email = metadata['email'],
     packages = find_packages(),
     license = metadata['license'],
@@ -36,6 +36,7 @@ setup(
         'distribute'
         ],
     entry_points = dict(console_scripts = ['migselsim=migselsim:main']),
-    setup_requires = ['nose', 'pinocchio', 'figleaf', 'coverage'],
+    # setup_requires = ['nose', 'pinocchio', 'figleaf', 'coverage'],
+    setup_requires = ['nose', 'nose-cov', 'cov-core', 'coverage', 'spec'],
     zip_safe = False,
     )
