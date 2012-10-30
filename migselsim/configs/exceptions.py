@@ -14,10 +14,6 @@ class WrongValue(ConfigException):
     """Value of a node is wrong."""
     pass
 
-class WrongType(ConfigException):
-    """Type of a value of a node is wrong."""
-    pass
-
 class MissingValue(ConfigException):
     """Value is missing."""
     pass

@@ -1,7 +1,7 @@
 # -*- mode: python; coding: utf-8; -*-
 
 from migselsim.configs import ConfigRecipe
-from migselsim.configs.utils import get_chromosome, get_position, get_list_of_values, get_dict_of_values, choose_most_specific_scenario, get_scenario, build_loci
+from migselsim.configs.utils import get_chromosome, get_values, get_position, choose_most_specific_scenario, get_scenario, build_loci
 from migselsim.definition import ALL_AVAIL, MALE, FEMALE
 from migselsim.definition import SCENARIO as s
 
@@ -34,12 +34,11 @@ class InitialFrequency(ConfigRecipe):
         else:
             # get rid of list to expose an atomic element.
             init_freq = init_freq[0]
-        f = get_list_of_values
 
         test_node = init_freq.children[0]
         mode = get_scenario(node, 'initial frequency')
         n_demes = len(node.root().get('population size'))
-        return build_loci(f, init_freq, chromosome, position, mode, mode, n_demes)
+        return build_loci(init_freq, chromosome, position, mode, mode, n_demes)
 
 
 class SelectionCoefficient(ConfigRecipe):
@@ -75,6 +74,5 @@ class SelectionCoefficient(ConfigRecipe):
             position = position[0]
         chromosome = get_chromosome(node)
 
-        f = get_dict_of_values
         n_demes = len(node.root().get('population size'))
-        return build_loci(f, selcoeff, chromosome, position, mode, true_mode, n_demes)
+        return build_loci(selcoeff, chromosome, position, mode, true_mode, n_demes)

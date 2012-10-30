@@ -3,7 +3,7 @@
 from migselsim.definition import AUTOSOME, CHROMOSOME_X, CHROMOSOME_Y, MITOCHONDRIAL, ALL_AVAIL, MALE, FEMALE
 from migselsim.definition import SCENARIO as s
 from migselsim.configs import ConfigRecipe
-from migselsim.configs.utils import get_chromosome, get_position, get_list_of_values, choose_most_specific_scenario, get_scenario, build_loci, Locus
+from migselsim.configs.utils import get_values, get_chromosome, get_position, choose_most_specific_scenario, get_scenario, build_loci, Locus
 
 class ChromosomalType(ConfigRecipe):
     key = 'chromosomes:type'
@@ -53,8 +53,6 @@ class Recombination(ConfigRecipe):
 
         recs = node.getNodes('recombination')
         loci = []
-        f = get_list_of_values
-        # f = lambda x: x
         n_demes = len(node.root().get('population size'))
         for r in recs:
             chromosome = get_chromosome(r)
@@ -67,7 +65,7 @@ class Recombination(ConfigRecipe):
                 raise Error
             else:
                 rate = rate[0]
-            loci.extend(build_loci(f, rate, chromosome, pos, scenario, true_scenario, n_demes))
+            loci.extend(build_loci(rate, chromosome, pos, scenario, true_scenario, n_demes))
 
         new_loci = []
         for l in loci:

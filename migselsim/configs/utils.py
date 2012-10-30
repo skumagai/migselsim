@@ -1,10 +1,10 @@
 # -*- mode: python; coding: utf-8; -*-
 
-import re
+import re, code
 
 from migselsim.definition import MALE, FEMALE, ALL_AVAIL
 from migselsim.definition import SCENARIO as s
-from migselsim.configs.exceptions import NodeNotFound
+from migselsim.configs.exceptions import NodeNotFound, MissingValue
 
 class Locus(object):
     def __init__(self, val, chrom, loci, subPops):
@@ -16,18 +16,42 @@ class Locus(object):
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
-
-def get_list_of_values(node):
-    if len(node.children) == 0 and hasattr(node, 'value'):
-        return [node.value]
+def get_values(node):
+    """construct a list or dict from descendents of node by recursively
+    calling _get_values()."""
+    value = _get_values(node)
+    if type(value) is tuple:
+        return value[1]
     else:
-        # default mode of action
-        return [c.value for c in node.children]
+        return value
 
+def _get_values(node):
+    n_children = len(node.children)
+    if n_children == 0 and not hasattr(node, 'value'):
+        raise MissingValue
+    elif n_children == 0:
+        # terminal node
+        try:
+            if node.is_list:
+                return node.value
+            else:
+                return node.id, node.value
+        except AttributeError:
+            raise MissingValue
+    elif n_children > 0 and node.children[0].is_list:
+        if node.is_list:
+            return [_get_values(c) for c in node.children]
+        else:
+            return node.id, [_get_values(c) for c in node.children]
 
-def get_dict_of_values(node):
-    return {eval(c.id): c.value for c in node.children}
-
+    else:
+        print 'id:', node.id
+        # can raise TypeError
+        print dict([_get_values(c) for c in node.children])
+        if node.is_list:
+            return dict([_get_values(c) for c in node.children])
+        else:
+            return node.id, dict([_get_values(c) for c in node.children])
 
 def get_chromosome(node):
     n = node
@@ -43,29 +67,31 @@ def get_chromosome(node):
         raise NodeNotFound
 
 def get_position(node):
-    pos = [pos for c in node.children for pos in c.children
-           if pos.id == 'position']
+    pos = [pos for pos in node.getNodes('position')]
+
     n_loci = node.parent.get('number of loci')[0]
     if len(pos) > n_loci:
-        raise Error
+        raise IndexError
 
     positions = [p.value for p in pos]
 
     if all([True for p in positions if 0 <= p < n_loci]):
         return positions
+    else:
+        raise IndexError
 
 
-def build_loci_from_list(func, node, chrom, pos, loc=None):
+def build_loci_from_list(node, chrom, pos, loc=None):
     if loc is not None:
-        return [Locus(func(node), chrom, pos, loc)]
+        return [Locus(get_values(node), chrom, pos, loc)]
     else:
         loci = []
         for i, d in enumerate(node.children):
-            loci.append(build_loci_from_list(func, d, chrom, pos, [(i, ALL_AVAIL)]))
+            loci.append(build_loci_from_list(d, chrom, pos, [(i, ALL_AVAIL)]))
         return loci
 
 
-def build_loci_from_sex_dict(func, node, chrom, pos, deme=None):
+def build_loci_from_sex_dict(node, chrom, pos, deme=None):
     loci = []
     if deme is not None:
         # not deme-specific

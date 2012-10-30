@@ -1,7 +1,7 @@
 # -*- mode: python; coding: utf-8; -*-
 
 from migselsim.configs import ConfigRecipe
-from migselsim.configs.utils import get_list_of_values
+from migselsim.configs.utils import get_values
 
 class MigrationMatrix(ConfigRecipe):
     key = 'migration:matrix'
@@ -17,6 +17,6 @@ class MigrationMatrix(ConfigRecipe):
         dim = len(mnode.children)
         mat = []
         for row in mnode.children:
-            mat.append( get_list_of_values(row))
+            mat.append( get_values(row))
 
         return cls.Matrix(mat)
