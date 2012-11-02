@@ -3,12 +3,17 @@
 from migselsim.definition import MALE, FEMALE, PER_PLOIDY, \
     ALL_AVAIL, NO_STRUCTURE, PROB_OF_MALES, MITOCHONDRIAL
 
+from migselsim.configs.xml import XML
+from migselsim.configs.yaml import YAML
 
 class Model(object):
     """Convert underlying demographic parameters to usable form in simuPOP simulator"""
 
-    def __init__(self, tree):
-        self.tree = tree
+    def __init__(self, fh, mode):
+        if mode == 'xml':
+            self.tree = XML(fh)
+        else:
+            self.tree = YAML(fh)
         self.pop = self._setPopulation()
 
 

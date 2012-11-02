@@ -3,11 +3,9 @@
 import sys
 import os.path
 
-from migselsim.commands import CommandPlugin
 from migselsim.baseparser import command_parsers, parser
+from migselsim.model import Model
 from migselsim.simulator import Simulator
-from migselsim.configs import parse_config
-from migselsim.configs import ConfigRecipe as cp
 from migselsim.log import logger
 
 class Run(CommandPlugin):
@@ -40,8 +38,8 @@ class Run(CommandPlugin):
             # start reading file.
             with open(conffile, 'r') as f:
                 simulators = []
-                for config in parse_config(f):
-                    simulators.append(Simulator(config))
+                for model in Model(f, 'xml'):
+                    simulators.append(Simulator(model))
         except Exception as e:
             logger.error(e)
             return

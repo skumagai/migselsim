@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <xsd:simpleType name="chromosomalIdentity">
+    <xsd:restriction base="xsd:NCName">
+      <xsd:enumeration value="autosome" />
+      <xsd:enumeration value="X" />
+      <xsd:enumeration value="Y" />
+      <xsd:enumeration value="mitochondria" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="moreThanOne">
+    <xsd:restriction base="xsd:positiveInteger">
+      <xsd:minInclusive value="2" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="sexType">
+    <xsd:restriction base="xsd:NCName">
+      <xsd:enumeration value="male"/>
+      <xsd:enumeration value="female"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <!-- <xsd:complexType name="sexSpecificRateType"> -->
+  <!--   <xsd:all> -->
+  <!--     <xsd:element name="sex" -->
+  <!--                  type="sexType"/> -->
+  <!--     <xsd:element name="value" -->
+  <!--                  type="xsd:decimal"/> -->
+  <!--   </xsd:all> -->
+  <!-- </xsd:complexType> -->
+
+  <!-- <xsd:complexType name="subpopulationSpecificRateType"> -->
+  <!--   <xsd:all> -->
+  <!--     <xsd:element name="subpopulationRef" -->
+  <!--                  type="xsd:NCName"/> -->
+  <!--     <xsd:element name="value" -->
+  <!--                  type="xsd:decimal"/> -->
+  <!--   </xsd:all> -->
+  <!-- </xsd:complexType> -->
+
+  <!-- <xsd:complexType name="sexAndSubpopulationSpecificRateType"> -->
+  <!--   <xsd:all> -->
+  <!--     <xsd:element name="sex" -->
+  <!--                  type="sexType"/> -->
+  <!--     <xsd:element name="subpopulationRef" -->
+  <!--                  type="xsd:NCName"/> -->
+  <!--     <xsd:element name="value" -->
+  <!--                  type="xsd:decimal"/> -->
+  <!--   </xsd:all> -->
+  <!-- </xsd:complexType> -->
+
+  <!-- <xsd:complexType name="ratesType"> -->
+  <!--   <xsd:choice> -->
+  <!--     <xsd:element name="sexSpecificRates" -->
+  <!--                  minOccurs="2" -->
+  <!--                  maxOccurs="2" -->
+  <!--                  type="sexSpecificRateType"/> -->
+  <!--     <xsd:element name="subpopulationSpecificRates" -->
+  <!--                  maxOccurs="unbounded" -->
+  <!--                  type="subpopulationSpecificRateType"/> -->
+  <!--     <xsd:element name="sexAndSubpopulationSpecificRates" -->
+  <!--                  maxOccurs="unbounded" -->
+  <!--                  type="sexAndSubpopulationSpecificRateType"/> -->
+  <!--     <xsd:element name="value" -->
+  <!--                  type="xsd:decimal"/> -->
+  <!--   </xsd:choice> -->
+  <!-- </xsd:complexType> -->
+
+  <xsd:complexType name="rateType">
+    <xsd:all>
+      <xsd:element name="sex"
+                   minOccurs="0"
+                   type="sexType"/>
+      <xsd:element name="subpopulationRef"
+                   minOccurs="0"
+                   type="xsd:NCName"/>
+      <xsd:element name="value"
+                   type="xsd:decimal"/>
+    </xsd:all>
+  </xsd:complexType>
+
+  <xsd:complexType name="ratesType">
+    <xsd:sequence>
+      <xsd:element name="rate"
+                   maxOccurs="unbounded"
+                   type="rateType"/>
+    </xsd:sequnce>
+    <xsd:unique name="uniqueRate">
+      <xsd:selector xpath="rate"/>
+      <xsd:field xpath="sex"/>
+      <xsd:field xpath="subpopulationRef"/>
+    </xsd:unique>
+  </xsd:complexType>
+
+  <xsd:complexType name="neutralLocusType">
+    <xsd:sequence>
+      <xsd:element name="recombination"
+                   minOccurs="0"
+                   type="ratesType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="alleleType">
+    <xsd:all>
+      <xsd:element name="initialFrequency"
+                   type="xsd:ratesType"/>
+      <xsd:element name="selectionCoefficient"
+                   type="xsd:ratesType"/>
+    </xsd:all>
+  </xsd:complexType>
+
+  <xsd:complexType name="nonNeutralLocusType">
+    <xsd:complexContent>
+      <xsd:extension base="neutralLocusType">
+        <xsd:element name="allele"
+                     type="alleleType"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="chromosomeType">
+    <xsd:sequence>
+      <xsd:element name="type"
+                   type="chromosomalIdentity"/>
+      <xsd:element name="name"
+                   minOccurs="0"
+                   type="xsd:string"/>
+      <xsd:choice maxOccurs="unbounded">
+        <xsd:element name="neutralLocus"
+                     type="neutralLocusType"/>
+        <xsd:element name="nonNeutralLocus"
+                     type="nonNeutralLocusType"/>
+      </xsd:choice>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="geneticStructureType">
+    <xsd:element name="chromosome" minOccurs="1" maxOccurs="unbounded" type="chromosomeType"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="subpopulationType">
+    <xsd:all>
+      <xsd:element name="populationSize" type="xsd:positiveInteger"/>
+      <xsd:element name="name" type="xsd:NCName"/>
+    </xsd:all>
+  </xsd:complexType>
+
+  <xsd:complexType name="migrationType">
+    <xsd:all>
+      <xsd:element name="sex"
+                   minOccurs="0"
+                   type="sexType" />
+      <xsd:element name="fromRef"
+                   type="xsd:NCName" />
+      <xsd:element name="toRef"
+                   type="xsd:NCName" />
+      <xsd:element name="rate"
+                   type="xsd:decimal" />
+    </xsd:all>
+  </xsd:complexType>
+
+  <xsd:complexType name="migrationSchemeType">
+    <xsd:sequence>
+      <xsd:element name="migration"
+                   minOccurs="0"
+                   maxOccurs="unbounded"
+                   type="migrationType"/>
+    </xsd:sequence>
+    <!-- <xsd:unique name="uniqueMigration"> -->
+    <!--   <xsd:selector xpath="migration"/> -->
+    <!--   <xsd:field xpath="sex"/> -->
+    <!--   <xsd:field xpath="fromRef"/> -->
+    <!--   <xsd:field xpath="toRef"/> -->
+    <!-- </xsd:unique> -->
+    <!-- <xsd:key name="subpopulationKey"> -->
+    <!-- </xsd:key> -->
+  </xsd:complexType>
+
+  <xsd:complexType name="matingSchemeType">
+    <xsd:all>
+      <xsd:element name="type"
+                   type="matingType"/>
+      <xsd:element name="numberOfOffspring"
+                   type="xsd:nonNegativeInteger"/>
+      <xsd:element name="maleProp"
+                   type="xsd:decimal"/>
+    </xsd:all>
+  </xsd:complexType>
+
+  <xsd:complexType name="subpopulationsType">
+    <xsd:sequence>
+      <xsd:element name="subpopulation"
+                   macOccurs="unbounded"
+                   type="subpopulationType"/>
+    </xsd:sequence>
+    <!-- <xsd:key name="subpopulationKey"> -->
+    <!--   <xsd:selector xpath="subpopulation"/> -->
+    <!--   <xsd:field xpath="name"/> -->
+    <!-- </xsd:key> -->
+  </xsd:complexType>
+
+  <xsd:complexType name="populationStructureType">
+    <xsd:sequence>
+      <xsd:element name="subpopulations"
+                   type="subpopulationsType"/>
+      <xsd:element name="migrationScheme"
+                   minOccurs="0"
+                   type="migrationSchemeType"/>
+      <xsd:element name="matingScheme"
+                   type="matingSchemeType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+
+  <xsd:complexType name="configType">
+    <xsd:all>
+      <xsd:element name="geneticStructure"
+                   type="geneticStructureType"/>
+      <xsd:element name="populationStructure"
+                   type="populationStructureType"/>
+      <xsd:element name="numberOfLoci"
+                   type="xsd:positiveInteger"/>
+      <xsd:element name="randomSeed"
+                   minOccurs="0"
+                   type="xsd:positiveInteger"/>
+      <xsd:element name="resultFile"
+                   type="xsd:string"/>
+    </xsd:all>
+  </xsd:complexType>
+
+
+  <xsd:element name="migselsim">
+    <xsd:complexType name="rootType">
+      <xsd:sequence>
+        <xsd:element name="config"
+                     maxOccurs="unbounded"
+                     type="configType"/>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:key name="subpopulationKey">
+      <xsd:selector xpath="config/populationStructure/subpopulations/subpopulation"/>
+      <xsd:field xpath="name"/>
+    </xsd:key>
+  </xsd:element>
+
+</xsd:schema>

@@ -33,6 +33,7 @@ setup(
     install_requires = [
         'simuPOP >= 1.0.7',
         'PyYAML >= 3.10',
+        'lxml',
         'distribute'
         ],
     entry_points = dict(console_scripts = ['migselsim=migselsim:main']),
