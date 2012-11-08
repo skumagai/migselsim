@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+
+<migselsim xmlns="http://biology.duke.edu"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://biology.duke.edu input.xsd">
+  <config>
+    <geneticStructure>
+      <chromosome>
+        <type>autosome</type>
+        <name>chromosome 1</name>
+        <neutralLocus>
+          <recombination>
+            <rate>
+              <sex>male</sex>
+              <value>0.1</value>
+            </rate>
+            <rate>
+              <sex>female</sex>
+              <value>female</value>
+            </rate>
+          </recombination>
+        </neutralLocus>
+        <neutralLocus/>
+        <nonNeutralLocus>
+          <allele>
+            <initialFrequence>
+              <rate>
+                <sex>male</sex>
+                <value>0.7</value>
+              </rate>
+              <rate>
+                <sex>female</sex>
+                <value>0.3</value>
+              </rate>
+            </initialFrequence>
+            <selectionCoefficient>
+              <rate>
+                <sex>male</sex>
+                <value>0.9</value>
+              </rate>
+              <rate>
+                <sex>female</sex>
+                <value>1.1</value>
+              </rate>
+            </selectionCoefficient>
+          </allele>
+          <allele>
+            <initialFrequence>
+              <rate>
+                <sex>male</sex>
+                <value>0.3</value>
+              </rate>
+              <rate>
+                <sex>female</sex>
+                <value>0.7</value>
+              </rate>
+            </initialFrequence>
+            <selectionCoefficient>
+              <rate>
+                <subpopulation>deme 1</subpopulation>
+                <value>0.8</value>
+              </rate>
+              <rate>
+                <subpopulation>deme 2</subpopulation>
+                <value>1.2</value>
+              </rate>
+            </selectionCoefficient>
+          </allele>
+        </nonNeutralLocus>
+      </chromosome>
+      <chromosome>
+        <type>X</type>
+        <name>chromosome 2</name>
+        <neutralLocus>
+        </neutralLocus>
+      </chromosome>
+    </geneticStructure>
+    <populationStructure>
+      <subpopulations>
+        <subpopulation>
+          <name>deme 1</name>
+          <populationSize>100</populationSize>
+        </subpopulation>
+        <subpopulation>
+          <name>deme 2</name>
+          <populationSize>200</populationSize>
+        </subpopulation>
+      </subpopulations>
+      <migrationScheme>
+        <migration>
+          <sex>male</sex>
+          <from>deme 1</from>
+          <to>deme 2</to>
+          <rate>0.1</rate>
+        </migration>
+        <migration>
+          <sex>female</sex>
+          <from>deme 1</from>
+          <to>deme 2</to>
+          <rate>0.2</rate>
+        </migration>
+        <migration>
+          <from>deme 2</from>
+          <to>deme 1</to>
+          <rate>0.3</rate>
+        </migration>
+      </migrationScheme>
+      <matingScheme>
+        <type>random mating</type>
+        <numberOfOffspring>2</numberOfOffspring>
+        <maleProp>0.5</maleProp>
+      </matingScheme>
+    </populationStructure>
+    <numberOfReplicates>1</numberOfReplicates>
+    <randomSeed>1</randomSeed>
+    <resultFile>output.dat</resultFile>
+  </config>
+</migselsim>
