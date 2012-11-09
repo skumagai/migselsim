@@ -16,14 +16,14 @@
             </rate>
             <rate>
               <sex>female</sex>
-              <value>female</value>
+              <value>0.2</value>
             </rate>
           </recombination>
         </neutralLocus>
         <neutralLocus/>
         <nonNeutralLocus>
           <allele>
-            <initialFrequence>
+            <initialFrequency>
               <rate>
                 <sex>male</sex>
                 <value>0.7</value>
@@ -32,7 +32,7 @@
                 <sex>female</sex>
                 <value>0.3</value>
               </rate>
-            </initialFrequence>
+            </initialFrequency>
             <selectionCoefficient>
               <rate>
                 <sex>male</sex>
@@ -45,7 +45,7 @@
             </selectionCoefficient>
           </allele>
           <allele>
-            <initialFrequence>
+            <initialFrequency>
               <rate>
                 <sex>male</sex>
                 <value>0.3</value>
@@ -54,7 +54,7 @@
                 <sex>female</sex>
                 <value>0.7</value>
               </rate>
-            </initialFrequence>
+            </initialFrequency>
             <selectionCoefficient>
               <rate>
                 <subpopulation>deme 1</subpopulation>
