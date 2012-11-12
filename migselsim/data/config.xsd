@@ -124,7 +124,7 @@
                    type="xsd:token" />
       <xsd:element name="to"
                    type="xsd:token" />
-      <xsd:element name="rate"
+      <xsd:element name="value"
                    type="xsd:decimal" />
     </xsd:all>
   </xsd:complexType>
