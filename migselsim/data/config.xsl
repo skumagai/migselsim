@@ -14,38 +14,6 @@
            match="mss:migration"
            use="concat(generate-id(..), '+', mss:sex, '+', mss:from, '+', mss:to)"/>
 
-  <xsl:template name="detect-duplicate">
-    <xsl:param name="node"/>
-    <xsl:variable name="spec">
-      <xsl:call-template name="detect-type">
-        <xsl:with-param name="type"
-                        select="."/>
-      </xsl:call-template>
-    </xsl:variable>
-    <xsl:choose>
-      <xsl:when test="false() or
-                      not(mss:rate[key('rateKey',
-                                       concat(generate-id(..), '+',
-                                              mss:sex, '+',
-                                              mss:subpopulation))[2]])">
-        <info>
-          <xsl:value-of select="concat(name($node),
-                                       ': valid ',
-                                       $spec,
-                                       '-specific rates detected')"/>
-        </info>
-      </xsl:when>
-      <xsl:otherwise>
-        <error>
-          <xsl:value-of select="concat(name($node),
-                                       ': duplicate ',
-                                       $spec,
-                                       '-specific rates detected')"/>
-        </error>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
   <xsl:template name="detect-type">
     <xsl:param name="type"/>
     <xsl:choose>
@@ -97,10 +65,36 @@
                                    mss:populationStructure/
                                    mss:subpopulations/
                                    mss:subpopulation)]">
-    <xsl:call-template name="detect-duplicate">
-      <xsl:with-param name="node"
-                      select="."/>
-    </xsl:call-template>
+
+    <xsl:variable name="spec">
+      <xsl:call-template name="detect-type">
+        <xsl:with-param name="type"
+                        select="."/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:choose>
+      <xsl:when test="false() or
+                      not(mss:rate[key('rateKey',
+                                       concat(generate-id(..), '+',
+                                              mss:sex, '+',
+                                              mss:subpopulation))[2]])">
+        <info>
+          <xsl:value-of select="concat(name(),
+                                       ': valid ',
+                                       $spec,
+                                       '-specific rates detected')"/>
+        </info>
+      </xsl:when>
+      <xsl:otherwise>
+        <error>
+          <xsl:value-of select="concat(name(),
+                                       ': duplicate ',
+                                       $spec,
+                                       '-specific rates detected')"/>
+        </error>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="mss:migrationScheme">
